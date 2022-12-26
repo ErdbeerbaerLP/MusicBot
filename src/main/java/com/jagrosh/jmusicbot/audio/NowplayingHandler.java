@@ -85,7 +85,6 @@ public class NowplayingHandler
             if(msg==null)
             {
                 msg = handler.getNoMusicPlaying(bot.getJDA());
-                toRemove.add(guildId);
             }
             try 
             {
