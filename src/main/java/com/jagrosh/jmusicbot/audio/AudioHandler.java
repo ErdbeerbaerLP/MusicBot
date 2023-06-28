@@ -239,7 +239,13 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             {
                 User u = guild.getJDA().getUserById(rm.user.id);
                 if(u==null)
-                    eb.setAuthor(FormatUtil.formatUsername(rm.user), null, rm.user.avatar);
+                    if(rm.user.discrim.equals("0000"))
+                        eb.setAuthor(rm.user.username, null, rm.user.avatar);
+                    else
+                        eb.setAuthor(FormatUtil.formatUsername(rm.user), null, rm.user.avatar);
+                else
+                if(u.getDiscriminator().equals("0000"))
+                    eb.setAuthor(u.getName(), null, u.getEffectiveAvatarUrl());
                 else
                     eb.setAuthor(FormatUtil.formatUsername(u), null, u.getEffectiveAvatarUrl());
             }
