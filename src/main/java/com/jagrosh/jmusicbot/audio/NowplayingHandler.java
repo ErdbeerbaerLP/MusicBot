@@ -27,9 +27,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 /**
  *
@@ -54,7 +57,7 @@ public class NowplayingHandler
     
     public void setLastNPMessage(Message m)
     {
-        lastNP.put(m.getGuild().getIdLong(), new Pair<>(m.getTextChannel().getIdLong(), m.getIdLong()));
+        lastNP.put(m.getGuild().getIdLong(), new Pair<>(m.getChannel().getIdLong(), m.getIdLong()));
     }
     
     public void clearLastNPMessage(Guild guild)
@@ -81,7 +84,7 @@ public class NowplayingHandler
                 continue;
             }
             AudioHandler handler = (AudioHandler)guild.getAudioManager().getSendingHandler();
-            Message msg = handler.getNowPlaying(bot.getJDA());
+            MessageCreateData msg = handler.getNowPlaying(bot.getJDA());
             if(msg==null)
             {
                 msg = handler.getNoMusicPlaying(bot.getJDA());
@@ -89,7 +92,7 @@ public class NowplayingHandler
             }
             try 
             {
-                tc.editMessageById(pair.getValue(), msg).queue(m->{}, t -> lastNP.remove(guildId));
+                tc.editMessageById(pair.getValue(), MessageEditData.fromCreateData(msg)).queue(m->{}, t -> lastNP.remove(guildId));
             } 
             catch(Exception e) 
             {
@@ -98,14 +101,52 @@ public class NowplayingHandler
         }
         toRemove.forEach(id -> lastNP.remove(id));
     }
-
+    
+    public void updateTopic(long guildId, AudioHandler handler, boolean wait)
+    {
+        Guild guild = bot.getJDA().getGuildById(guildId);
+        if(guild==null)
+            return;
+        Settings settings = bot.getSettingsManager().getSettings(guildId);
+        final MessageChannel chan = settings.getTextChannel(guild);
+        if(chan == null)
+            return;
+        if(!(chan instanceof TextChannel))
+            return;
+        final TextChannel tchan = (TextChannel)chan;
+        if(guild.getSelfMember().hasPermission(tchan, Permission.MANAGE_CHANNEL))
+        {
+            String otherText;
+            String topic = tchan.getTopic();
+            if(topic==null || topic.isEmpty())
+                otherText = "\u200B";
+            else if(topic.contains("\u200B"))
+                otherText = topic.substring(topic.lastIndexOf("\u200B"));
+            else
+                otherText = "\u200B\n "+topic;
+            String text = handler.getTopicFormat(bot.getJDA()) + otherText;
+            if(!text.equals(tchan.getTopic()))
+            {
+                try 
+                {
+                    // normally here if 'wait' was false, we'd want to queue, however,
+                    // new discord ratelimits specifically limiting changing channel topics
+                    // mean we don't want a backlog of changes piling up, so if we hit a 
+                    // ratelimit, we just won't change the topic this time
+                    tchan.getManager().setTopic(text).complete(wait);
+                } 
+                catch(PermissionException | RateLimitedException ignore) {}
+            }
+        }
+    }
+    
     // "event"-based methods
     public void onTrackUpdate(AudioTrack track)
     {
         // update bot status if applicable
         if(bot.getConfig().getSongInStatus())
         {
-            if(track!=null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()<=1)
+            if(track!=null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inAudioChannel()).count()<=1)
                 bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
             else
                 bot.resetGame();

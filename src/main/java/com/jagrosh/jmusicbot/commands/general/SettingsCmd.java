@@ -23,10 +23,10 @@ import com.jagrosh.jmusicbot.settings.RepeatMode;
 import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 /**
  *
@@ -48,12 +48,12 @@ public class SettingsCmd extends Command
     protected void execute(CommandEvent event) 
     {
         Settings s = event.getClient().getSettingsFor(event.getGuild());
-        MessageBuilder builder = new MessageBuilder()
-                .append(EMOJI + " **")
-                .append(FormatUtil.filter(event.getSelfUser().getName()))
-                .append("** settings:");
-        TextChannel tchan = s.getTextChannel(event.getGuild());
-        VoiceChannel vchan = s.getVoiceChannel(event.getGuild());
+        MessageCreateBuilder builder = new MessageCreateBuilder()
+                .addContent(EMOJI + " **\n"+
+                FormatUtil.filter(event.getSelfUser().getName())+"\n"+
+                "** settings:");
+        MessageChannel tchan = s.getTextChannel(event.getGuild());
+        AudioChannel vchan = s.getVoiceChannel(event.getGuild());
         Role role = s.getRole(event.getGuild());
         EmbedBuilder ebuilder = new EmbedBuilder()
                 .setColor(event.getSelfMember().getColor())
@@ -70,7 +70,7 @@ public class SettingsCmd extends Command
                         + "\nDefault Playlist: " + (s.getDefaultPlaylist() == null ? "None" : "**" + s.getDefaultPlaylist() + "**")
                         )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
-                        + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()
+                        + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inAudioChannel()).count()
                         + " audio connections", null);
         event.getChannel().sendMessage(builder.setEmbeds(ebuilder.build()).build()).queue();
     }
