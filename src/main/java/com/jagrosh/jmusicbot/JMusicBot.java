@@ -227,7 +227,9 @@ public class JMusicBot
                         new SetgameCmd(bot),
                         new SetnameCmd(bot),
                         new SetstatusCmd(bot),
-                        new ShutdownCmd(bot)
+                        new ShutdownCmd(bot),
+                        new LeaveServerCmd(bot),
+                        new ServersCmd(bot)
                 );
         
         // enable eval if applicable
