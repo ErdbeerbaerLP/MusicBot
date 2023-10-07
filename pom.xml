@@ -7,6 +7,7 @@
     <packaging>jar</packaging>
 
     <repositories>
+
         <repository>
             <id>dv8tion</id>
             <name>m2-dv8tion</name>
@@ -16,6 +17,11 @@
             <id>central</id>
             <name>bintray</name>
             <url>https://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>data-local</id>
+            <name>data</name>
+            <url>file://${project.basedir}/libs</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -32,15 +38,16 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.4.1_353</version>
+            <version>5.0.0-beta.15</version>
         </dependency>
+
         <dependency>
             <groupId>com.jagrosh</groupId>
             <artifactId>jda-utilities</artifactId>
-            <version>3.0.5</version>
-            <type>pom</type>
+            <version>4.0.0-all</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/jda-utilities-4.0.0-all.jar</systemPath>
         </dependency>
-
         <dependency>
             <groupId>dev.arbjerg</groupId>
             <artifactId>lavaplayer</artifactId>
@@ -134,7 +141,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
     </properties>
 </project>

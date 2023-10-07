@@ -29,7 +29,7 @@ A cross-platform Discord music bot with a clean interface, and that is easy to s
 
 ## Fork Additions
   * Added servers and leaveserver commands for owners
-  * Updated some dependencies (lavaplayer)
+  * Updated some dependencies (lavaplayer, JDA, JDA Utilities (PR) )
 
 ## Supported sources and formats
 JMusicBot supports all sources and formats supported by [lavaplayer](https://github.com/sedmelluq/lavaplayer#supported-formats):
