@@ -30,7 +30,6 @@ import com.jagrosh.jmusicbot.settings.SettingsManager;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
 import java.awt.Color;
 import java.util.Arrays;
-import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -39,6 +38,8 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
+
+import javax.security.auth.login.LoginException;
 
 /**
  *
@@ -117,8 +118,9 @@ public class JMusicBot
         try
         {
             JDA jda = JDABuilder.create(config.getToken(), Arrays.asList(INTENTS))
+                    .enableIntents(GatewayIntent.MESSAGE_CONTENT,GatewayIntent.GUILD_MEMBERS)
                     .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE, CacheFlag.ONLINE_STATUS)
+                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOJI, CacheFlag.ONLINE_STATUS)
                     .setActivity(config.isGameNone() ? null : Activity.playing("loading..."))
                     .setStatus(config.getStatus()==OnlineStatus.INVISIBLE || config.getStatus()==OnlineStatus.OFFLINE
                             ? OnlineStatus.INVISIBLE : OnlineStatus.DO_NOT_DISTURB)
@@ -146,14 +148,14 @@ public class JMusicBot
                         + "If your prefix is not working, make sure that the 'MESSAGE CONTENT INTENT' is Enabled "
                         + "on https://discord.com/developers/applications/" + jda.getSelfUser().getId() + "/bot");
             }
-        }
+        }/*
         catch (LoginException ex)
         {
             prompt.alert(Prompt.Level.ERROR, "JMusicBot", ex + "\nPlease make sure you are "
                     + "editing the correct config.txt file, and that you have used the "
                     + "correct token (not the 'secret'!)\nConfig Location: " + config.getConfigLocation());
             System.exit(1);
-        }
+        }*/
         catch(IllegalArgumentException ex)
         {
             prompt.alert(Prompt.Level.ERROR, "JMusicBot", "Some aspect of the configuration is "
@@ -247,57 +249,6 @@ public class JMusicBot
             cb.setActivity(null);
         else
             cb.setActivity(config.getGame());
-        /*
-        if(!prompt.isNoGUI())
-        {
-            try 
-            {
-                GUI gui = new GUI(bot);
-                bot.setGUI(gui);
-                gui.init();
-            } 
-            catch(Exception e) 
-            {
-                LOG.error("Could not start GUI. If you are "
-                        + "running on a server or in a location where you cannot display a "
-                        + "window, please run in nogui mode using the -Dnogui=true flag.");
-            }
-        }
-        
-        // attempt to log in and start
-        try
-        {
-            JDA jda = JDABuilder.create(config.getToken(), Arrays.asList(INTENTS))
-                    .enableIntents(GatewayIntent.MESSAGE_CONTENT,GatewayIntent.GUILD_MEMBERS)
-                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE, CacheFlag.ONLINE_STATUS)
-                    .setActivity(nogame ? null : Activity.playing("loading..."))
-                    .setStatus(config.getStatus()==OnlineStatus.INVISIBLE || config.getStatus()==OnlineStatus.OFFLINE
-                            ? OnlineStatus.INVISIBLE : OnlineStatus.DO_NOT_DISTURB)
-                    .addEventListeners(cb.build(), waiter, new Listener(bot))
-                    .setBulkDeleteSplittingEnabled(true)
-                    .build();
-            bot.setJDA(jda);
-        }
-        catch (LoginException ex)
-        {
-            prompt.alert(Prompt.Level.ERROR, "JMusicBot", ex + "\nPlease make sure you are "
-                    + "editing the correct config.txt file, and that you have used the "
-                    + "correct token (not the 'secret'!)\nConfig Location: " + config.getConfigLocation());
-            System.exit(1);
-        }
-        catch(IllegalArgumentException ex)
-        {
-            prompt.alert(Prompt.Level.ERROR, "JMusicBot", "Some aspect of the configuration is "
-                    + "invalid: " + ex + "\nConfig Location: " + config.getConfigLocation());
-            System.exit(1);
-        }
-        catch(ErrorResponseException ex)
-        {
-            prompt.alert(Prompt.Level.ERROR, "JMusicBot", ex + "\nInvalid reponse returned when "
-                    + "attempting to connect, please make sure you're connected to the internet");
-            System.exit(1);
-        }*/
         return cb.build();
     }
 

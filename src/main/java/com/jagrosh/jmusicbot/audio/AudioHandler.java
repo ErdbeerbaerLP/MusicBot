@@ -292,6 +292,23 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
                 .build()).build();
     }
 
+    public String getTopicFormat(JDA jda)
+    {
+        if(isMusicPlaying(jda))
+        {
+            long userid = getRequestMetadata().getOwner();
+            AudioTrack track = audioPlayer.getPlayingTrack();
+            String title = track.getInfo().title;
+            if(title==null || title.equals("Unknown Title"))
+                title = track.getInfo().uri;
+            return "**"+title+"** ["+(userid==0 ? "autoplay" : "<@"+userid+">")+"]"
+                    + "\n" + getStatusEmoji() + " "
+                    + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
+                    + FormatUtil.volumeIcon(audioPlayer.getVolume());
+        }
+        else return "No music playing " + STOP_EMOJI + " " + FormatUtil.volumeIcon(audioPlayer.getVolume());
+    }
+
     public String getStatusEmoji()
     {
         return audioPlayer.isPaused() ? PAUSE_EMOJI : PLAY_EMOJI;
