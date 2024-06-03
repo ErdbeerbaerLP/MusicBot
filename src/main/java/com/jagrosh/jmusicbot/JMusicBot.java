@@ -68,6 +68,7 @@ public class JMusicBot
             }
         startBot();
     }
+    public static CommandClient client;
     
     private static void startBot()
     {
@@ -93,7 +94,7 @@ public class JMusicBot
         EventWaiter waiter = new EventWaiter();
         SettingsManager settings = new SettingsManager();
         Bot bot = new Bot(waiter, config, settings);
-        CommandClient client = createCommandClient(config, settings, bot);
+        client = createCommandClient(config, settings, bot);
 
 
         if(!prompt.isNoGUI())
@@ -233,6 +234,7 @@ public class JMusicBot
                         new LeaveServerCmd(bot),
                         new ServersCmd(bot)
                 );
+        cb.setHelpConsumer(ExtendedHelpCommand::execute);
 
         // enable eval if applicable
         if(config.useEval())
