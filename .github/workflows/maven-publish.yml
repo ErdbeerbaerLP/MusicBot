@@ -33,13 +33,13 @@ jobs:
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
         
       - name: Rename jar
-        run: mv target/*-All.jar JMusicBot-${{ SHORT_SHA }}.jar
+        run: mv target/*-All.jar JMusicBot-${ SHORT_SHA }.jar
 
       - name: Upload jar
         uses: actions/upload-artifact@v3
         with:
           name: jar
-          path: JMusicBot-${{ SHORT_SHA }}.jar
+          path: JMusicBot-${ SHORT_SHA }.jar
           if-no-files-found: error
 
   create_release:
@@ -76,8 +76,8 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ SHORT_SHA }}
-          name: Version ${{ SHORT_SHA }}
+          tag: ${ SHORT_SHA }
+          name: Version ${ SHORT_SHA }
           draft: true
           prerelease: false
           artifacts: "*.jar"
@@ -89,4 +89,4 @@ jobs:
             ### Setup
             https://jmusicbot.com/setup  
             https://jmusicbot.com/config  
-            # Download: [JMusicBot-${{ SHORT_SHA }}.jar](https://github.com/ErdbeerbaerLP/MusicBot/releases/download/${{ SHORT_SHA }}/JMusicBot-${{ SHORT_SHA }}.jar)
+            # Download: [JMusicBot-${ SHORT_SHA }.jar](https://github.com/ErdbeerbaerLP/MusicBot/releases/download/${ SHORT_SHA }/JMusicBot-${ SHORT_SHA }.jar)
