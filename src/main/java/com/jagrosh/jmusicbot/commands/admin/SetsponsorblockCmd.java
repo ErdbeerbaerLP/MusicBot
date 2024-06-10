@@ -46,7 +46,7 @@ public class SetsponsorblockCmd extends AdminCommand {
             event.reply(event.getClient().getSuccess() + " Sponsorblock has now been disabled!");
         } else {
             final ArrayList<de.erdbeerbaerlp.jsponsorblock.Category> cats = new ArrayList<>();
-            for (String str : event.getArgs().split(",")) {
+            for (String str : event.getArgs().replace(" ", "").toUpperCase().split(",")) {
                 try {
                     cats.add(de.erdbeerbaerlp.jsponsorblock.Category.valueOf(str));
                 } catch (IllegalArgumentException e) {
