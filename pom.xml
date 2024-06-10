@@ -130,6 +130,13 @@
       <plugins>
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <release>17</release>
+              </configuration>
+          </plugin>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-install-plugin</artifactId>
               <version>3.0.0-M1</version> <!-- Adjust the version if needed -->
 
@@ -182,9 +189,9 @@
                                     <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
                                 </manifestEntries>
                             </transformer>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                            <!--transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                                 <resource>libs/jda-utilities-4.0.0-all.jar</resource>
-                            </transformer>
+                            </transformer-->
                         </transformers>
                     </configuration>
                 </execution>
