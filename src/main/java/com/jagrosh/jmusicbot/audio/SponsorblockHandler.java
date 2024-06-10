@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class SponsorblockHandler {
     private final Bot bot;
     private final ArrayList<Long> guilds;
-    private static final HashMap<AudioTrack, Segment[]> segmentCache = new HashMap<>();;
+    private static final HashMap<AudioTrack, Segment[]> segmentCache = new HashMap<>();
 
     public SponsorblockHandler(Bot bot) {
         this.bot = bot;
