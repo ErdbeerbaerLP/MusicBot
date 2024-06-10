@@ -57,7 +57,7 @@ jobs:
       - name: Get Pushed Commits
         id: get_pushed_commits
         run: |
-          commit_range="${{ github.event.before }}...${{ github.sha }}"
+          commit_range="${{ github.event.before }}..${{ github.sha }}"
           commits=$(git log --pretty=format:'%h: %s' $commit_range)
           echo "commits=$commits" >> $GITHUB_ENV
 
