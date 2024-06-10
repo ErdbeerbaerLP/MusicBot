@@ -29,14 +29,17 @@ jobs:
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
 
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+        
       - name: Rename jar
-        run: mv target/*-All.jar JMusicBot-${{ github.sha }}.jar
+        run: mv target/*-All.jar JMusicBot-${{ SHORT_SHA }}.jar
 
       - name: Upload jar
         uses: actions/upload-artifact@v3
         with:
           name: jar
-          path: JMusicBot-${{ github.sha }}.jar
+          path: JMusicBot-${{ SHORT_SHA }}.jar
           if-no-files-found: error
 
   create_release:
@@ -50,6 +53,9 @@ jobs:
           ref: 'jda5'
           fetch-depth: '0'
 
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "SHORT_SHA=`echo ${{GITHUB_SHA}} | cut -c1-8`" >> $GITHUB_ENV
+        
       - name: Download a Build Artifact
         uses: actions/download-artifact@v3.0.0
         with:
@@ -66,19 +72,16 @@ jobs:
           commits=$(git log --pretty=format:'%h: %s' $commit_range)
           echo "commits=$commits" >> $GITHUB_ENV
 
-
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.sha }}
-          name: Version ${{ github.sha }}
+          tag: ${{ SHORT_SHA }}
+          name: Version ${{ SHORT_SHA }}
           draft: true
           prerelease: false
           artifacts: "*.jar"
           body: |
-            Commit: ${{ github.sha }}
-
             Commits:
             ${{ env.commits }}
 
@@ -86,4 +89,4 @@ jobs:
             ### Setup
             https://jmusicbot.com/setup  
             https://jmusicbot.com/config  
-            # Download: [JMusicBot-${{ github.sha }}.jar](https://github.com/ErdbeerbaerLP/MusicBot/releases/download/${{ github.sha }}/JMusicBot-${{ github.sha }}.jar)
+            # Download: [JMusicBot-${{ SHORT_SHA }}.jar](https://github.com/ErdbeerbaerLP/MusicBot/releases/download/${{ SHORT_SHA }}/JMusicBot-${{ SHORT_SHA }}.jar)
