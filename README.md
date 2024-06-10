@@ -2,14 +2,14 @@
 
 # JMusicBot Fork
 
-[![Downloads](https://img.shields.io/github/downloads/jagrosh/MusicBot/total.svg)](https://github.com/jagrosh/MusicBot/releases/latest)
-[![Stars](https://img.shields.io/github/stars/jagrosh/MusicBot.svg)](https://github.com/jagrosh/MusicBot/stargazers)
-[![Release](https://img.shields.io/github/release/jagrosh/MusicBot.svg)](https://github.com/jagrosh/MusicBot/releases/latest)
-[![License](https://img.shields.io/github/license/jagrosh/MusicBot.svg)](https://github.com/jagrosh/MusicBot/blob/master/LICENSE)
-[![Discord](https://discordapp.com/api/guilds/147698382092238848/widget.png)](https://discord.gg/0p9LSGoRLu6Pet0k)<br>
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/jagrosh/MusicBot/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/jagrosh/MusicBot/tree/master)
-[![Build and Test](https://github.com/jagrosh/MusicBot/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/jagrosh/MusicBot/actions/workflows/build-and-test.yml)
-[![CodeFactor](https://www.codefactor.io/repository/github/jagrosh/musicbot/badge)](https://www.codefactor.io/repository/github/jagrosh/musicbot)
+[![Downloads](https://img.shields.io/github/downloads/ErdbeerbaerLP/MusicBot/total.svg)](https://github.com/ErdbeerbaerLP/MusicBot/releases/latest)
+[![Stars](https://img.shields.io/github/stars/ErdbeerbaerLP/MusicBot.svg)](https://github.com/ErdbeerbaerLP/MusicBot/stargazers)
+[![Release](https://img.shields.io/github/release/ErdbeerbaerLP/MusicBot.svg)](https://github.com/jagrosh/ErdbeerbaerLP/releases/latest)
+[![License](https://img.shields.io/github/license/ErdbeerbaerLP/MusicBot.svg)](https://github.com/jagrosh/ErdbeerbaerLP/blob/master/LICENSE)
+[![Discord](https://discordapp.com/api/guilds/147698382092238848/widget.png)](https://discord.gg/0p9LSGoRLu6Pet0k) (Discord not for help with this fork!)<br>
+<!--[![CircleCI](https://dl.circleci.com/status-badge/img/gh/jagrosh/MusicBot/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/jagrosh/MusicBot/tree/master)-->
+[![Build and Test](https://github.com/ErdbeerbaerLP/MusicBot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ErdbeerbaerLP/MusicBot/actions/workflows/maven-publish.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/ErdbeerbaerLP/musicbot/badge)](https://www.codefactor.io/repository/github/ErdbeerbaerLP/musicbot)
 
 A cross-platform Discord music bot with a clean interface, and that is easy to set up and run yourself!
 
@@ -28,10 +28,10 @@ A cross-platform Discord music bot with a clean interface, and that is easy to s
   * Playlist support (both web/youtube, and local)
 
 ## Fork Additions
-  * Added servers and leaveserver commands for owners
-  * Updated some dependencies (lavaplayer, JDA, JDA Utilities (PR) )
+  * Added `servers` and `leaveserver` commands for owners
+  * Updated some dependencies (lavaplayer, JDA, ...)
   * Added voice channel status to display current music
-  * Added Sponsorblock support
+  * Added Sponsorblock support. To enable, check the `setsponsorblock` admin command
 
 ## Supported sources and formats
 JMusicBot supports all sources and formats supported by [lavaplayer](https://github.com/sedmelluq/lavaplayer#supported-formats):
