@@ -30,7 +30,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots verify
 
       - name: Add SHORT_SHA env property with commit short sha
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+        run: echo "SHORT_SHA=`echo ${github.sha} | cut -c1-8`" >> $GITHUB_ENV
         
       - name: Rename jar
         run: mv target/*-All.jar JMusicBot-${ SHORT_SHA }.jar
