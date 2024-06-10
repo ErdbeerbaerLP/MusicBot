@@ -87,9 +87,9 @@ public class JMusicBot
         LOG.info("Loaded config from " + config.getConfigLocation());
 
         // set log level from config
-        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(
+   /*     ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(
                 Level.toLevel(config.getLogLevel(), Level.INFO));
-
+*/
         // set up the listener
         EventWaiter waiter = new EventWaiter();
         SettingsManager settings = new SettingsManager();
@@ -222,6 +222,7 @@ public class JMusicBot
                         new SkipratioCmd(bot),
                         new SettcCmd(bot),
                         new SetvcCmd(bot),
+                        new SetsponsorblockCmd(bot),
 
                         new AutoplaylistCmd(bot),
                         new DebugCmd(bot),

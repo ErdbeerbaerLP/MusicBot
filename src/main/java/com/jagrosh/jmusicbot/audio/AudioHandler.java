@@ -27,6 +27,8 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +37,11 @@ import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import java.nio.ByteBuffer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import de.erdbeerbaerlp.jsponsorblock.JSponsorBlock;
+import de.erdbeerbaerlp.jsponsorblock.Segment;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -48,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
+public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
 {
     public final static String PLAY_EMOJI  = "\u25B6"; // ▶
     public final static String PAUSE_EMOJI = "\u23F8"; // ⏸
@@ -93,9 +100,21 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             return 0;
         }
     }
-    
+
+    private static final Pattern YOUTUBE_REGEX = Pattern.compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube(?:-nocookie)?\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|live\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
+
     public int addTrack(QueuedTrack qtrack)
     {
+        final Matcher m = YOUTUBE_REGEX.matcher(qtrack.getTrack().getInfo().uri);
+        if (m.matches()) {
+            final String vidID = m.group(5);
+            try {
+                SponsorblockHandler.addSegment(qtrack.getTrack(), JSponsorBlock.getSkipableSegments(vidID));
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
         if(audioPlayer.getPlayingTrack()==null)
         {
             audioPlayer.playTrack(qtrack.getTrack());
@@ -117,7 +136,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         audioPlayer.stopTrack();
         //current = null;
     }
-    
     public boolean isMusicPlaying(JDA jda)
     {
         return guild(jda).getSelfMember().getVoiceState().inAudioChannel() && audioPlayer.getPlayingTrack()!=null;
@@ -168,7 +186,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         });
         return true;
     }
-    
+    public String getCurrentTrack(JDA jda) {
+        if (this.isMusicPlaying(jda)) {
+            return this.audioPlayer.getPlayingTrack().getInfo().title;
+        }
+        return "No music playing";
+    }
     // Audio Events
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) 
@@ -195,7 +218,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         {
             if(!playFromDefault())
             {
-                manager.getBot().getNowplayingHandler().onTrackUpdate(null);
+                manager.getBot().getNowplayingHandler().onTrackUpdate(guildId, track, this);
                 if(!manager.getBot().getConfig().getStay())
                     manager.getBot().closeAudioConnection(guildId);
                 // unpause, in the case when the player was paused and the track has been skipped.
@@ -208,6 +231,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             QueuedTrack qt = queue.pull();
             player.playTrack(qt.getTrack());
         }
+        SponsorblockHandler.removeSegment(track);
     }
 
     @Override
@@ -219,7 +243,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     public void onTrackStart(AudioPlayer player, AudioTrack track) 
     {
         votes.clear();
-        manager.getBot().getNowplayingHandler().onTrackUpdate(track);
+        manager.getBot().getNowplayingHandler().onTrackUpdate(guildId, track, this);
     }
 
     

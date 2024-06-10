@@ -36,6 +36,16 @@
             <name>Lavalink Repository</name>
             <url>https://maven.lavalink.dev/snapshots</url>
         </repository>
+        <!-- Chew's Maven Repo for JDA-Chewtils -->
+        <repository>
+            <id>chew-m2-snapshots</id>
+            <url>https://m2.chew.pro/snapshots/</url>
+        </repository>
+        <repository>
+            <id>erdbeerbaerlp</id>
+            <name>ErdbeerbaerLP Repository</name>
+            <url>https://repo.erdbeerbaerlp.de/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -43,12 +53,21 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-beta.15</version>
+            <version>5.0.0-beta.24</version>
         </dependency>
         <dependency>
-            <groupId>com.jagrosh</groupId> <!-- Replace with the actual group ID -->
-            <artifactId>jda-utilities</artifactId>
-            <version>4.0.0-all</version>
+            <groupId>pw.chew</groupId>
+            <artifactId>jda-chewtils</artifactId>
+            <version>2.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <type>pom</type>
+        </dependency>
+
+        <!-- SponsorBlock -->
+        <dependency>
+            <groupId>de.erdbeerbaerlp</groupId> <!-- Replace with the actual group ID -->
+            <artifactId>jsponsorblock</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- Music Dependencies -->
@@ -89,6 +108,8 @@
             <artifactId>jsoup</artifactId>
             <version>1.15.3</version>
         </dependency>
+
+
 
         <!-- Testing Dependencies -->
         <dependency>

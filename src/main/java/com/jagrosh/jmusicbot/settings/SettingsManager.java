@@ -20,7 +20,10 @@ import com.jagrosh.jmusicbot.utils.OtherUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import de.erdbeerbaerlp.jsponsorblock.Category;
 import net.dv8tion.jda.api.entities.Guild;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +51,14 @@ public class SettingsManager implements GuildSettingsManager<Settings>
                 if (!o.has("repeat_mode") && o.has("repeat") && o.getBoolean("repeat"))
                     o.put("repeat_mode", RepeatMode.ALL);
 
+                Category[] categories = new Category[0];
+                if(o.has("sb_categories")){
+                    final ArrayList<Category> cats = new ArrayList<>();
+                    for (final String cat : o.getString("sb_categories").split(",")) {
+                        cats.add(Category.valueOf(cat));
+                    }
+                    categories = cats.toArray(categories);
+                }
 
                 settings.put(Long.parseLong(id), new Settings(this,
                         o.has("text_channel_id") ? o.getString("text_channel_id")            : null,
@@ -58,7 +69,8 @@ public class SettingsManager implements GuildSettingsManager<Settings>
                         o.has("repeat_mode")     ? o.getEnum(RepeatMode.class, "repeat_mode"): RepeatMode.OFF,
                         o.has("prefix")          ? o.getString("prefix")                     : null,
                         o.has("skip_ratio")      ? o.getDouble("skip_ratio")                 : -1,
-                        o.has("queue_type")      ? o.getEnum(QueueType.class, "queue_type")  : QueueType.FAIR));
+                        o.has("queue_type")      ? o.getEnum(QueueType.class, "queue_type")  : QueueType.FAIR,
+                        categories));
             });
         } catch (NoSuchFileException e) {
             // create an empty json file
@@ -95,7 +107,7 @@ public class SettingsManager implements GuildSettingsManager<Settings>
 
     private Settings createDefaultSettings()
     {
-        return new Settings(this, 0, 0, 0, 100, null, RepeatMode.OFF, null, -1, QueueType.FAIR);
+        return new Settings(this, 0, 0, 0, 100, null, RepeatMode.OFF, null, -1, QueueType.FAIR, new Category[0]);
     }
 
     protected void writeSettings()
@@ -122,6 +134,15 @@ public class SettingsManager implements GuildSettingsManager<Settings>
                 o.put("skip_ratio", s.getSkipRatio());
             if(s.getQueueType() != QueueType.FAIR)
                 o.put("queue_type", s.getQueueType().name());
+            final Category[] cats = s.getCategories();
+            if(cats.length > 0) {
+                final StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < cats.length; i++) {
+                    sb.append(cats[i]);
+                    if(i != cats.length-1) sb.append(",");
+                }
+                o.put("sb_categories", sb.toString());
+            }
             obj.put(Long.toString(key), o);
         });
         try {

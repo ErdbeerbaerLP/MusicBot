@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -39,12 +40,12 @@ import org.slf4j.LoggerFactory;
 public class Listener extends ListenerAdapter
 {
     private final Bot bot;
-    
+
     public Listener(Bot bot)
     {
         this.bot = bot;
     }
-    
+
     @Override
     public void onReady(ReadyEvent event)
     {
@@ -55,8 +56,9 @@ public class Listener extends ListenerAdapter
             log.warn(event.getJDA().getInviteUrl(JMusicBot.RECOMMENDED_PERMS));
         }
         credit(event.getJDA());
-        event.getJDA().getGuilds().forEach((guild) -> 
+        event.getJDA().getGuilds().forEach((guild) ->
         {
+            bot.sponsorblock.addGuild(guild.getIdLong());
             try
             {
                 String defpl = bot.getSettingsManager().getSettings(guild).getDefaultPlaylist();
@@ -70,7 +72,7 @@ public class Listener extends ListenerAdapter
         });
         if(bot.getConfig().useUpdateAlerts())
         {
-            bot.getThreadpool().scheduleWithFixedDelay(() -> 
+            bot.getThreadpool().scheduleWithFixedDelay(() ->
             {
                 try
                 {
@@ -87,7 +89,7 @@ public class Listener extends ListenerAdapter
             }, 0, 24, TimeUnit.HOURS);
         }
     }
-    
+
     @Override
     public void onMessageDelete(MessageDeleteEvent event)
     {
@@ -110,8 +112,14 @@ public class Listener extends ListenerAdapter
     public void onGuildJoin(GuildJoinEvent event)
     {
         credit(event.getJDA());
+        bot.sponsorblock.addGuild(event.getGuild().getIdLong());
     }
-    
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event)
+    {
+        bot.sponsorblock.removeGuild(event.getGuild().getIdLong());
+    }
+
     // make sure people aren't adding clones to dbots
     private void credit(JDA jda)
     {

@@ -27,10 +27,11 @@ A cross-platform Discord music bot with a clean interface, and that is easy to s
   * Supports local files
   * Playlist support (both web/youtube, and local)
 
-## Fork Changes
+## Fork Additions
   * Added servers and leaveserver commands for owners
   * Updated some dependencies (lavaplayer, JDA, JDA Utilities (PR) )
   * Added voice channel status to display current music
+  * Added Sponsorblock support
 
 ## Supported sources and formats
 JMusicBot supports all sources and formats supported by [lavaplayer](https://github.com/sedmelluq/lavaplayer#supported-formats):

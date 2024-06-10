@@ -16,6 +16,8 @@
 package com.jagrosh.jmusicbot.commands.music;
 
 import com.jagrosh.jmusicbot.audio.RequestMetadata;
+import com.jagrosh.jmusicbot.audio.SponsorblockHandler;
+import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -117,10 +119,18 @@ public class PlayCmd extends MusicCommand
             int pos = handler.addTrack(new QueuedTrack(track, RequestMetadata.fromResultHandler(track, event)))+1;
             String addMsg = FormatUtil.filter(event.getClient().getSuccess()+" Added **"+track.getInfo().title
                     +"** (`"+ TimeUtil.formatTime(track.getDuration())+"`) "+(pos==0?"to begin playing":" to the queue at position "+pos));
+
+            final Settings settings = event.getClient().getSettingsFor(event.getGuild());
+            if(settings.getCategories().length > 0){
+                if(SponsorblockHandler.containsSegment(track)){
+                    addMsg+="\nSponsorblock data has been found and will be applied!";
+                }
+            }
             if(playlist==null || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
                 m.editMessage(addMsg).queue();
             else
             {
+                String finalAddMsg = addMsg;
                 new ButtonMenu.Builder()
                         .setText(addMsg+"\n"+event.getClient().getWarning()+" This track has a playlist of **"+playlist.getTracks().size()+"** tracks attached. Select "+LOAD+" to load playlist.")
                         .setChoices(LOAD, CANCEL)
@@ -129,9 +139,9 @@ public class PlayCmd extends MusicCommand
                         .setAction(re ->
                         {
                             if(re.getName().equals(LOAD))
-                                m.editMessage(addMsg+"\n"+event.getClient().getSuccess()+" Loaded **"+loadPlaylist(playlist, track)+"** additional tracks!").queue();
+                                m.editMessage(finalAddMsg +"\n"+event.getClient().getSuccess()+" Loaded **"+loadPlaylist(playlist, track)+"** additional tracks!").queue();
                             else
-                                m.editMessage(addMsg).queue();
+                                m.editMessage(finalAddMsg).queue();
                         }).setFinalAction(m ->
                         {
                             try{ m.clearReactions().queue(); }catch(PermissionException ignore) {}
