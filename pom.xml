@@ -133,7 +133,7 @@
               <artifactId>maven-install-plugin</artifactId>
               <version>3.0.0-M1</version> <!-- Adjust the version if needed -->
 
-              <executions>
+              <!--executions>
                   <execution>
                       <id>install-jda-utilities</id>
                       <phase>initialize</phase>
@@ -142,13 +142,13 @@
                       </goals>
                       <configuration>
                           <file>${basedir}/libs/jda-utilities-4.0.0-all.jar</file>
-                          <groupId>com.jagrosh</groupId> <!-- Replace with your actual group ID -->
+                          <groupId>com.jagrosh</groupId>
                           <artifactId>jda-utilities</artifactId>
                           <version>4.0.0-all</version>
                           <packaging>jar</packaging>
                       </configuration>
                   </execution>
-              </executions>
+              </executions-->
           </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
