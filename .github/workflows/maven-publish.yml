@@ -85,8 +85,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.COMMIT_SHORT_SHA }}
-          name: Version ${{ env.COMMIT_SHORT_SHA }}
-          draft: true
+          name: Build ${{ env.COMMIT_SHORT_SHA }}
+          draft: false
           prerelease: false
           artifacts: "*.jar"
           body: |
