@@ -34,7 +34,13 @@ import com.jagrosh.jmusicbot.commands.DJCommand;
 import com.jagrosh.jmusicbot.commands.MusicCommand;
 import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
+
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import de.erdbeerbaerlp.jsponsorblock.JSponsorBlock;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -106,7 +112,8 @@ public class PlayCmd extends MusicCommand
             this.event = event;
             this.ytsearch = ytsearch;
         }
-        
+        private static final Pattern YOUTUBE_REGEX = Pattern.compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube(?:-nocookie)?\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|live\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
+
         private void loadSingle(AudioTrack track, AudioPlaylist playlist)
         {
             if(bot.getConfig().isTooLong(track))
@@ -121,12 +128,19 @@ public class PlayCmd extends MusicCommand
                     +"** (`"+ TimeUtil.formatTime(track.getDuration())+"`) "+(pos==0?"to begin playing":" to the queue at position "+pos));
 
             final Settings settings = event.getClient().getSettingsFor(event.getGuild());
-            if(settings.getCategories().length > 0){
-                if(SponsorblockHandler.containsSegment(track)){
-                    addMsg+="\nSponsorblock data has been found and will be applied!";
+
+            if (settings.getCategories().length > 0) {
+                final Matcher m = YOUTUBE_REGEX.matcher(track.getInfo().uri);
+                if (m.matches()) {
+                    final String vidID = m.group(5);
+                    try {
+                        SponsorblockHandler.addSegment(track, JSponsorBlock.getSkipableSegments(vidID));
+                        addMsg += "\nSponsorblock data has been found and will be applied!";
+                    } catch (IOException ignored) {
+                    }
                 }
             }
-            if(playlist==null || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
+            if (playlist == null || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
                 m.editMessage(addMsg).queue();
             else
             {
@@ -152,11 +166,23 @@ public class PlayCmd extends MusicCommand
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
         {
             int[] count = {0};
+
+            final Settings settings = event.getClient().getSettingsFor(event.getGuild());
             playlist.getTracks().stream().forEach((track) -> {
                 if(!bot.getConfig().isTooLong(track) && !track.equals(exclude))
                 {
                     AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
                     handler.addTrack(new QueuedTrack(track, RequestMetadata.fromResultHandler(track, event)));
+                    if (settings.getCategories().length > 0) {
+                        final Matcher m = YOUTUBE_REGEX.matcher(track.getInfo().uri);
+                        if (m.matches()) {
+                            final String vidID = m.group(5);
+                            try {
+                                SponsorblockHandler.addSegment(track, JSponsorBlock.getSkipableSegments(vidID));
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    }
                     count[0]++;
                 }
             });

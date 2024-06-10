@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class SponsorblockHandler {
     private final Bot bot;
     private final ArrayList<Long> guilds;
-    private static final HashMap<AudioTrack, Segment[]> segmentCache = new HashMap<>();
+    private static final HashMap<String, Segment[]> segmentCache = new HashMap<>();
 
     public SponsorblockHandler(Bot bot) {
         this.bot = bot;
@@ -25,19 +25,20 @@ public class SponsorblockHandler {
         guilds.add(g);
     }
 
-    public void removeGuild(Long guild) {
-        if(guilds.contains(guild)) guilds.remove(guild);
+    public void removeGuild(long guild) {
+        guilds.remove(guild);
     }
+
     public static void addSegment(AudioTrack track, Segment[] segments) {
-        segmentCache.put(track, segments);
+        segmentCache.put(track.getInfo().uri, segments);
     }
 
     public static void removeSegment(AudioTrack track) {
-        segmentCache.remove(track);
+        segmentCache.remove(track.getInfo().uri);
     }
 
     public static boolean containsSegment(AudioTrack track) {
-        return segmentCache.containsKey(track);
+        return segmentCache.containsKey(track.getInfo().uri);
     }
 
     public void init() {
@@ -45,17 +46,21 @@ public class SponsorblockHandler {
     }
 
     private void checkAll() {
-        for (long guildId : guilds) {
+        for (final long guildId : guilds) {
             final Settings s = bot.getSettingsManager().getSettings(guildId);
             if (s.getCategories().length > 0) {
                 final Guild guild = bot.getJDA().getGuildById(guildId);
+                if(guild == null) continue;
                 final AudioHandler handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
-                if(handler != null && handler.isMusicPlaying(bot.getJDA())){
+                if (handler != null && handler.isMusicPlaying(bot.getJDA())) {
+                    if(handler.getPlayer() == null) continue;
+                    if(handler.getPlayer().getPlayingTrack() == null) continue;
                     final long curPos = handler.getPlayer().getPlayingTrack().getPosition();
-                    final Segment[] segs = SponsorblockUtil.filterSegments(segmentCache.get(handler.getPlayer().getPlayingTrack()), s.getCategories());
-                    for (Segment seg : segs) {
-                        if(seg.getSegmentStart()*1000 <= curPos && seg.getSegmentEnd()*1000 >= curPos){
-                            handler.getPlayer().getPlayingTrack().setPosition((long) (seg.getSegmentEnd()*1000));
+                    if(!segmentCache.containsKey(handler.getPlayer().getPlayingTrack().getInfo().uri)) continue;
+                    final Segment[] segs = SponsorblockUtil.filterSegments(segmentCache.get(handler.getPlayer().getPlayingTrack().getInfo().uri), s.getCategories());
+                    for (final Segment seg : segs) {
+                        if (seg.getSegmentStart() * 1000 <= curPos && seg.getSegmentEnd() * 1000 >= curPos) {
+                            handler.getPlayer().getPlayingTrack().setPosition((long) (seg.getSegmentEnd() * 1000));
                         }
                     }
                 }

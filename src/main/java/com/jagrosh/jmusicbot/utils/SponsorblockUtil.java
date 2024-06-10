@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class SponsorblockUtil {
     public static Segment[] filterSegments(Segment[] segs, Category... categories){
         final ArrayList<Segment> s = new ArrayList<>();
-        for (Segment seg : segs) {
+        for (final Segment seg : segs) {
             for (Category category : categories) {
                 if(category.equals(seg.getCategory())){
                     s.add(seg);

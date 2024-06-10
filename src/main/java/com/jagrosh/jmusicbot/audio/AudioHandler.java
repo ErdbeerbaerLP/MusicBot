@@ -101,19 +101,10 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         }
     }
 
-    private static final Pattern YOUTUBE_REGEX = Pattern.compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube(?:-nocookie)?\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|live\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
     public int addTrack(QueuedTrack qtrack)
     {
-        final Matcher m = YOUTUBE_REGEX.matcher(qtrack.getTrack().getInfo().uri);
-        if (m.matches()) {
-            final String vidID = m.group(5);
-            try {
-                SponsorblockHandler.addSegment(qtrack.getTrack(), JSponsorBlock.getSkipableSegments(vidID));
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
+
 
         if(audioPlayer.getPlayingTrack()==null)
         {
