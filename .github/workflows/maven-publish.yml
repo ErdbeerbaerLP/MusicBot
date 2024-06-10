@@ -77,7 +77,9 @@ jobs:
         run: |
           commit_range="${{ github.event.before }}..${{ github.sha }}"
           commits=$(git log --pretty=format:'%h: %s' $commit_range)
-          echo "commits=$commits" >> $GITHUB_ENV
+          echo "commits<<EOF" >> $GITHUB_ENV
+          echo "$commits" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
 
       - name: Create Release
