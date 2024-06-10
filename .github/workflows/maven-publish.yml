@@ -48,6 +48,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: 'jda5'
+          fetch-depth: '0'
 
       - name: Download a Build Artifact
         uses: actions/download-artifact@v3.0.0
