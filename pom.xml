@@ -46,6 +46,11 @@
             <name>ErdbeerbaerLP Repository</name>
             <url>https://repo.erdbeerbaerlp.de/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>TopiWTF-releases</id>
+            <name>Topis Maven Repo</name>
+            <url>https://maven.topi.wtf/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -123,6 +128,20 @@
             <artifactId>hamcrest-core</artifactId>
             <version>1.3</version>
             <scope>test</scope>
+        </dependency>
+
+
+
+
+        <dependency>
+            <groupId>com.github.topi314.lavasrc</groupId>
+            <artifactId>lavasrc</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.topi314.lavasrc</groupId>
+            <artifactId>protocol-jvm</artifactId>
+            <version>4.1.1</version>
         </dependency>
     </dependencies>
 

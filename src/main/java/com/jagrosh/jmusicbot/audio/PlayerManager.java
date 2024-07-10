@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.audio;
 
 import com.dunctebot.sourcemanagers.DuncteBotSources;
+import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.jagrosh.jmusicbot.Bot;
 import com.sedmelluq.discord.lavaplayer.container.MediaContainerRegistry;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -39,12 +40,12 @@ import net.dv8tion.jda.api.entities.Guild;
 public class PlayerManager extends DefaultAudioPlayerManager
 {
     private final Bot bot;
-    
+
     public PlayerManager(Bot bot)
     {
         this.bot = bot;
     }
-    
+
     public void init()
     {
         TransformativeAudioSourceManager.createTransforms(bot.getConfig().getTransforms()).forEach(t -> registerSourceManager(t));
@@ -62,21 +63,24 @@ public class PlayerManager extends DefaultAudioPlayerManager
         registerSourceManager(new NicoAudioSourceManager());
         registerSourceManager(new HttpAudioSourceManager(MediaContainerRegistry.DEFAULT_REGISTRY));
 
+        if (!bot.getConfig().getSpotifyClientID().isEmpty() && !bot.getConfig().getSpotifyClientSecret().isEmpty()) {
+            registerSourceManager(new SpotifySourceManager(null,bot.getConfig().getSpotifyClientID(),bot.getConfig().getSpotifyClientSecret(), "DE", this));
+        }
         AudioSourceManagers.registerLocalSource(this);
 
         DuncteBotSources.registerAll(this, "en-US");
     }
-    
+
     public Bot getBot()
     {
         return bot;
     }
-    
+
     public boolean hasHandler(Guild guild)
     {
         return guild.getAudioManager().getSendingHandler()!=null;
     }
-    
+
     public AudioHandler setUpHandler(Guild guild)
     {
         AudioHandler handler;

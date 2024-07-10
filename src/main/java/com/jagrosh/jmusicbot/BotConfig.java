@@ -51,7 +51,9 @@ public class BotConfig
     private Config aliases, transforms;
 
     private boolean valid = false;
-    
+    private String sfClientSecret;
+    private String sfClientID;
+
     public BotConfig(Prompt prompt)
     {
         this.prompt = prompt;
@@ -82,6 +84,8 @@ public class BotConfig
             errorEmoji = config.getString("error");
             loadingEmoji = config.getString("loading");
             searchingEmoji = config.getString("searching");
+            sfClientID = config.getString("spotifyclientid");
+            sfClientSecret = config.getString("spotifyclientsecret");
             game = OtherUtil.parseGame(config.getString("game"));
             status = OtherUtil.parseStatus(config.getString("status"));
             stayInChannel = config.getBoolean("stayinchannel");
@@ -227,6 +231,14 @@ public class BotConfig
     {
         return prefix;
     }
+    public String getSpotifyClientID()
+    {
+        return sfClientID;
+    }
+    public String getSpotifyClientSecret()
+    {
+        return sfClientSecret;
+    }
     
     public String getAltPrefix()
     {
@@ -242,7 +254,7 @@ public class BotConfig
     {
         return skipratio;
     }
-    
+
     public long getOwnerId()
     {
         return owner;
@@ -292,7 +304,7 @@ public class BotConfig
     {
         return helpWord;
     }
-    
+
     public boolean getStay()
     {
         return stayInChannel;
