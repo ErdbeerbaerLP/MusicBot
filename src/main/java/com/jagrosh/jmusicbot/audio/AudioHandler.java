@@ -180,7 +180,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     public String getCurrentTrack(JDA jda) {
         if (this.isMusicPlaying(jda)) {
             final StringBuilder b = new StringBuilder();
-            if(this.audioPlayer.getPlayingTrack().getInfo().author != null && this.audioPlayer.getPlayingTrack().getInfo().author.isEmpty())
+            if(this.audioPlayer.getPlayingTrack().getInfo().author != null && !this.audioPlayer.getPlayingTrack().getInfo().author.isEmpty())
                 b.append(this.audioPlayer.getPlayingTrack().getInfo().author).append(" - ");
             return b.append(this.audioPlayer.getPlayingTrack().getInfo().title).toString();
         }
