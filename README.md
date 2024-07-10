@@ -32,6 +32,8 @@ A cross-platform Discord music bot with a clean interface, and that is easy to s
   * Updated some dependencies (lavaplayer, JDA, ...)
   * Added voice channel status to display current music
   * Added Sponsorblock support. To enable, check the `setsponsorblock` admin command
+  * Spotify Support
+  * *=play \<track>* **?shuffle** parameter to immediately shuffle playlists
 
 ## Supported sources and formats
 JMusicBot supports all sources and formats supported by [lavaplayer](https://github.com/sedmelluq/lavaplayer#supported-formats):
