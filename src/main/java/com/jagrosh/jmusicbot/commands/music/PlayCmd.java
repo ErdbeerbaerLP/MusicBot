@@ -36,6 +36,9 @@ import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,7 +64,7 @@ public class PlayCmd extends MusicCommand
         super(bot);
         this.loadingEmoji = bot.getConfig().getLoading();
         this.name = "play";
-        this.arguments = "<title|URL|subcommand>";
+        this.arguments = "<title|URL|subcommand> [?shuffle]";
         this.help = "plays the provided song";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.beListening = true;
@@ -72,7 +75,10 @@ public class PlayCmd extends MusicCommand
     @Override
     public void doCommand(CommandEvent event) 
     {
-        if(event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty())
+        String argsIn = event.getArgs();
+        boolean shuffle = argsIn.endsWith(" ?shuffle");
+        if(shuffle) argsIn = argsIn.replace(" ?shuffle","");
+        if(argsIn.isEmpty() && event.getMessage().getAttachments().isEmpty())
         {
             AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
             if(handler.getPlayer().getPlayingTrack()!=null && handler.getPlayer().isPaused())
@@ -91,13 +97,16 @@ public class PlayCmd extends MusicCommand
             builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <URL>` - plays the provided song, playlist, or stream");
             for(Command cmd: children)
                 builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
+            builder.append("\n`").append("Tip: Append ` ?shuffle` to the command to shuffle playlists before loading");
             event.reply(builder.toString());
             return;
         }
-        String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">") 
-                ? event.getArgs().substring(1,event.getArgs().length()-1) 
-                : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(loadingEmoji+" Loading... `["+args+"]`", m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m,event,false)));
+
+        String args = argsIn.startsWith("<") && argsIn.endsWith(">")
+                ? argsIn.substring(1, argsIn.length()-1)
+                : argsIn.isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : argsIn;
+
+        event.reply(loadingEmoji+" Loading... `["+args+"]`", m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m,event,false, shuffle)));
     }
     
     private class ResultHandler implements AudioLoadResultHandler
@@ -105,12 +114,14 @@ public class PlayCmd extends MusicCommand
         private final Message m;
         private final CommandEvent event;
         private final boolean ytsearch;
-        
-        private ResultHandler(Message m, CommandEvent event, boolean ytsearch)
+        private final boolean shuffle;
+
+        private ResultHandler(Message m, CommandEvent event, boolean ytsearch, boolean shuffle)
         {
             this.m = m;
             this.event = event;
             this.ytsearch = ytsearch;
+            this.shuffle = shuffle;
         }
         private static final Pattern YOUTUBE_REGEX = Pattern.compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube(?:-nocookie)?\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|live\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
@@ -168,7 +179,9 @@ public class PlayCmd extends MusicCommand
             int[] count = {0};
 
             final Settings settings = event.getClient().getSettingsFor(event.getGuild());
-            playlist.getTracks().stream().forEach((track) -> {
+            final List<AudioTrack> tracks = playlist.getTracks();
+            if(shuffle) Collections.shuffle(tracks);
+            tracks.stream().forEach((track) -> {
                 if(!bot.getConfig().isTooLong(track) && !track.equals(exclude))
                 {
                     AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
@@ -238,7 +251,7 @@ public class PlayCmd extends MusicCommand
             if(ytsearch)
                 m.editMessage(FormatUtil.filter(event.getClient().getWarning()+" No results found for `"+event.getArgs()+"`.")).queue();
             else
-                bot.getPlayerManager().loadItemOrdered(event.getGuild(), "ytsearch:"+event.getArgs(), new ResultHandler(m,event,true));
+                bot.getPlayerManager().loadItemOrdered(event.getGuild(), "ytsearch:"+event.getArgs(), new ResultHandler(m,event,true, shuffle));
         }
 
         @Override
