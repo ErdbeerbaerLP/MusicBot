@@ -64,7 +64,11 @@ public class PlayerManager extends DefaultAudioPlayerManager
         registerSourceManager(new HttpAudioSourceManager(MediaContainerRegistry.DEFAULT_REGISTRY));
 
         if (!bot.getConfig().getSpotifyClientID().isEmpty() && !bot.getConfig().getSpotifyClientSecret().isEmpty()) {
-            registerSourceManager(new SpotifySourceManager(null,bot.getConfig().getSpotifyClientID(),bot.getConfig().getSpotifyClientSecret(), "DE", this));
+            final SpotifySourceManager spotify = new SpotifySourceManager(null, bot.getConfig().getSpotifyClientID(), bot.getConfig().getSpotifyClientSecret(), "DE", this);
+            spotify.setPlaylistPageLimit(18);
+            spotify.setAlbumPageLimit(18);
+            registerSourceManager(spotify);
+
         }
         AudioSourceManagers.registerLocalSource(this);
 
