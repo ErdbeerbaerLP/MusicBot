@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jmusicbot.commands.music;
 
+import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.jagrosh.jmusicbot.audio.RequestMetadata;
 import com.jagrosh.jmusicbot.audio.SponsorblockHandler;
 import com.jagrosh.jmusicbot.settings.Settings;
@@ -105,8 +106,16 @@ public class PlayCmd extends MusicCommand
         String args = argsIn.startsWith("<") && argsIn.endsWith(">")
                 ? argsIn.substring(1, argsIn.length()-1)
                 : argsIn.isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : argsIn;
-
-        event.reply(loadingEmoji+" Loading... `["+args+"]`", m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m,event,false, shuffle)));
+        // Spotify Workaround
+        final Matcher spotifyMatcher = SpotifySourceManager.URL_PATTERN.matcher(args);
+        if(spotifyMatcher.matches()){
+            final String region = spotifyMatcher.group("region");
+            if(region == null || region.isEmpty()){
+                args = args.replace("spotify.com/", "spotify.com/intl");
+            }
+        }
+        String finalArgs = args;
+        event.reply(loadingEmoji+" Loading... `["+args+"]`", m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), finalArgs, new ResultHandler(m,event,false, shuffle)));
     }
     
     private class ResultHandler implements AudioLoadResultHandler
