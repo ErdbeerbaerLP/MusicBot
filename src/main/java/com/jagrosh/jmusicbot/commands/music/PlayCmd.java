@@ -18,6 +18,7 @@ package com.jagrosh.jmusicbot.commands.music;
 import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.jagrosh.jmusicbot.audio.RequestMetadata;
 import com.jagrosh.jmusicbot.audio.SponsorblockHandler;
+import com.jagrosh.jmusicbot.commands.owner.PlaylistCmd;
 import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -77,26 +78,24 @@ public class PlayCmd extends MusicCommand
     @Override
     public void doCommand(CommandEvent event)
     {
-        // Spotify Workaround
-        final Matcher spotifyMatcher = SpotifySourceManager.URL_PATTERN.matcher(event.getArgs());
-        System.out.println(event.getArgs());
-        if(spotifyMatcher.matches()){
-            try{
+        try {
+            // Spotify Workaround
+            final Matcher spotifyMatcher = SpotifySourceManager.URL_PATTERN.matcher(event.getArgs());
+            if (spotifyMatcher.find()) {
                 final Field argField = event.getClass().getDeclaredField("args");
                 argField.setAccessible(true);
                 final String arg = (String) argField.get(event);
                 final String region = spotifyMatcher.group("region");
-                if(region == null || region.isEmpty()){
+                if (region == null || region.isEmpty()) {
                     argField.set(event, arg.replace("spotify.com/", "spotify.com/intl/"));
-                }else if(!region.equals("intl")) argField.set(event, arg.replace(region, "intl"));
-            }catch (Exception ignored){
-                ignored.printStackTrace();
+                } else if (!region.equals("intl")) argField.set(event, arg.replace(region, "intl"));
             }
+
+        } catch (Exception ignored) {
         }
-        System.out.println(event.getArgs());
         String argsIn = event.getArgs();
         boolean shuffle = argsIn.endsWith(" ?shuffle");
-        if(shuffle) argsIn = argsIn.replace(" ?shuffle","");
+        if (shuffle) argsIn = argsIn.replace(" ?shuffle", "");
         if(argsIn.isEmpty() && event.getMessage().getAttachments().isEmpty())
         {
             AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
