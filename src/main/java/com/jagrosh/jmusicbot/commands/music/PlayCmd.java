@@ -37,6 +37,7 @@ import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -57,9 +58,9 @@ public class PlayCmd extends MusicCommand
 {
     private final static String LOAD = "\uD83D\uDCE5"; // 📥
     private final static String CANCEL = "\uD83D\uDEAB"; // 🚫
-    
+
     private final String loadingEmoji;
-    
+
     public PlayCmd(Bot bot)
     {
         super(bot);
@@ -74,8 +75,25 @@ public class PlayCmd extends MusicCommand
     }
 
     @Override
-    public void doCommand(CommandEvent event) 
+    public void doCommand(CommandEvent event)
     {
+        // Spotify Workaround
+        final Matcher spotifyMatcher = SpotifySourceManager.URL_PATTERN.matcher(event.getArgs());
+        System.out.println(event.getArgs());
+        if(spotifyMatcher.matches()){
+            try{
+                final Field argField = event.getClass().getDeclaredField("args");
+                argField.setAccessible(true);
+                final String arg = (String) argField.get(event);
+                final String region = spotifyMatcher.group("region");
+                if(region == null || region.isEmpty()){
+                    argField.set(event, arg.replace("spotify.com/", "spotify.com/intl/"));
+                }else if(!region.equals("intl")) argField.set(event, arg.replace(region, "intl"));
+            }catch (Exception ignored){
+                ignored.printStackTrace();
+            }
+        }
+        System.out.println(event.getArgs());
         String argsIn = event.getArgs();
         boolean shuffle = argsIn.endsWith(" ?shuffle");
         if(shuffle) argsIn = argsIn.replace(" ?shuffle","");
@@ -103,21 +121,15 @@ public class PlayCmd extends MusicCommand
             return;
         }
 
+
         String args = argsIn.startsWith("<") && argsIn.endsWith(">")
                 ? argsIn.substring(1, argsIn.length()-1)
                 : argsIn.isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : argsIn;
-        // Spotify Workaround
-        final Matcher spotifyMatcher = SpotifySourceManager.URL_PATTERN.matcher(args);
-        if(spotifyMatcher.matches()){
-            final String region = spotifyMatcher.group("region");
-            if(region == null || region.isEmpty()){
-                args = args.replace("spotify.com/", "spotify.com/intl");
-            }
-        }
+
         String finalArgs = args;
         event.reply(loadingEmoji+" Loading... `["+args+"]`", m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), finalArgs, new ResultHandler(m,event,false, shuffle)));
     }
-    
+
     private class ResultHandler implements AudioLoadResultHandler
     {
         private final Message m;
@@ -182,7 +194,7 @@ public class PlayCmd extends MusicCommand
                         }).build().display(m);
             }
         }
-        
+
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
         {
             int[] count = {0};
@@ -210,7 +222,7 @@ public class PlayCmd extends MusicCommand
             });
             return count[0];
         }
-        
+
         @Override
         public void trackLoaded(AudioTrack track)
         {
@@ -272,7 +284,7 @@ public class PlayCmd extends MusicCommand
                 m.editMessage(event.getClient().getError()+" Error loading track.").queue();
         }
     }
-    
+
     public class PlaylistCmd extends MusicCommand
     {
         public PlaylistCmd(Bot bot)
@@ -287,7 +299,7 @@ public class PlayCmd extends MusicCommand
         }
 
         @Override
-        public void doCommand(CommandEvent event) 
+        public void doCommand(CommandEvent event)
         {
             if(event.getArgs().isEmpty())
             {
@@ -300,12 +312,12 @@ public class PlayCmd extends MusicCommand
                 event.replyError("I could not find `"+event.getArgs()+".txt` in the Playlists folder.");
                 return;
             }
-            event.getChannel().sendMessage(loadingEmoji+" Loading playlist **"+event.getArgs()+"**... ("+playlist.getItems().size()+" items)").queue(m -> 
+            event.getChannel().sendMessage(loadingEmoji+" Loading playlist **"+event.getArgs()+"**... ("+playlist.getItems().size()+" items)").queue(m ->
             {
                 AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
                 playlist.loadTracks(bot.getPlayerManager(), (at)->handler.addTrack(new QueuedTrack(at, RequestMetadata.fromResultHandler(at, event))), () -> {
-                    StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty() 
-                            ? event.getClient().getWarning()+" No tracks were loaded!" 
+                    StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty()
+                            ? event.getClient().getWarning()+" No tracks were loaded!"
                             : event.getClient().getSuccess()+" Loaded **"+playlist.getTracks().size()+"** tracks!");
                     if(!playlist.getErrors().isEmpty())
                         builder.append("\nThe following tracks failed to load:");
