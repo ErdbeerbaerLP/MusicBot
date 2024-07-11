@@ -26,6 +26,8 @@ import java.nio.file.Path;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 
+import javax.swing.*;
+
 /**
  * 
  * 
@@ -392,5 +394,9 @@ public class BotConfig
     public Config getTransforms()
     {
         return transforms;
+    }
+
+    public boolean isSpotifyEnabled() {
+        return !getSpotifyClientID().isEmpty() && getSpotifyClientSecret().isEmpty();
     }
 }
