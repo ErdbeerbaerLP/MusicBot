@@ -397,6 +397,6 @@ public class BotConfig
     }
 
     public boolean isSpotifyEnabled() {
-        return !getSpotifyClientID().isEmpty() && getSpotifyClientSecret().isEmpty();
+        return !getSpotifyClientID().isEmpty() && !getSpotifyClientSecret().isEmpty();
     }
 }
