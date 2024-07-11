@@ -236,6 +236,8 @@ public class JMusicBot
                         new LeaveServerCmd(bot),
                         new ServersCmd(bot)
                 );
+        if(bot.getConfig().isSpotifyEnabled())
+            cb.addCommand(new SPSearchCmd(bot));
         cb.setHelpConsumer(ExtendedHelpCommand::execute);
 
         // enable eval if applicable
