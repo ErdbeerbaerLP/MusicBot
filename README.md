@@ -27,7 +27,7 @@ A cross-platform Discord music bot with a clean interface, and that is easy to s
   * Supports local files
   * Playlist support (both web/youtube, and local)
 
-## Fork Additions
+## Fork Additions (Show in [Wiki](<https://wiki.erdbeerbaerlp.de/musicbot:root>))
   * Added `servers` and `leaveserver` commands for owners
   * Updated some dependencies (lavaplayer, JDA, ...)
   * Added voice channel status to display current music
