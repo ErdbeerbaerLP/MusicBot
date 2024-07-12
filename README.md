@@ -5,7 +5,7 @@
 [![Downloads](https://img.shields.io/github/downloads/ErdbeerbaerLP/MusicBot/total.svg)](https://github.com/ErdbeerbaerLP/MusicBot/releases/latest)
 [![Stars](https://img.shields.io/github/stars/ErdbeerbaerLP/MusicBot.svg)](https://github.com/ErdbeerbaerLP/MusicBot/stargazers)
 [![Release](https://img.shields.io/github/release/ErdbeerbaerLP/MusicBot.svg)](https://github.com/jagrosh/ErdbeerbaerLP/releases/latest)
-[![License](https://img.shields.io/github/license/ErdbeerbaerLP/MusicBot.svg)](https://github.com/jagrosh/ErdbeerbaerLP/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/ErdbeerbaerLP/MusicBot.svg)](https://github.com/ErdbeerbaerLP/MusicBot/blob/master/LICENSE)
 [![Discord](https://discordapp.com/api/guilds/147698382092238848/widget.png)](https://discord.gg/0p9LSGoRLu6Pet0k) (Discord not for help with this fork!)<br>
 <!--[![CircleCI](https://dl.circleci.com/status-badge/img/gh/jagrosh/MusicBot/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/jagrosh/MusicBot/tree/master)-->
 [![Build and Test](https://github.com/ErdbeerbaerLP/MusicBot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ErdbeerbaerLP/MusicBot/actions/workflows/maven-publish.yml)
