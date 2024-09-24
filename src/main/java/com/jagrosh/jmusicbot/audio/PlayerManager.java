@@ -31,39 +31,93 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.clients.*;
 import net.dv8tion.jda.api.entities.Guild;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 /**
- *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public class PlayerManager extends DefaultAudioPlayerManager
-{
+public class PlayerManager extends DefaultAudioPlayerManager {
     private final Bot bot;
 
-    public PlayerManager(Bot bot)
-    {
+    public PlayerManager(Bot bot) {
         this.bot = bot;
     }
 
-    public void init()
-    {
+    File refreshTokenFile = new File("./.ytRefreshToken");
+
+    public void init() {
         TransformativeAudioSourceManager.createTransforms(bot.getConfig().getTransforms()).forEach(t -> registerSourceManager(t));
 
-        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(true);
+        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(true, new Web(), new WebEmbedded(), new TvHtml5Embedded(), new Ios(), new Music());
         yt.setPlaylistPageCount(bot.getConfig().getMaxYTPlaylistPages());
+        if (!refreshTokenFile.exists()) {
+            try {
+                refreshTokenFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            yt.useOauth2(null, false);
+
+            while (yt.getOauth2RefreshToken() == null) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+            try {
+                Files.writeString(refreshTokenFile.toPath(), yt.getOauth2RefreshToken());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            try {
+                yt.useOauth2(Files.readString(refreshTokenFile.toPath()), true);
+                while (yt.getOauth2RefreshToken() == null) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+                try {
+                    Files.writeString(refreshTokenFile.toPath(), yt.getOauth2RefreshToken());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                yt.useOauth2(null, false);
+            }
+        }
+
         registerSourceManager(yt);
 
         registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+
         registerSourceManager(new BandcampAudioSourceManager());
+
         registerSourceManager(new VimeoAudioSourceManager());
+
         registerSourceManager(new TwitchStreamAudioSourceManager());
+
         registerSourceManager(new BeamAudioSourceManager());
+
         registerSourceManager(new GetyarnAudioSourceManager());
+
         registerSourceManager(new NicoAudioSourceManager());
+
         registerSourceManager(new HttpAudioSourceManager(MediaContainerRegistry.DEFAULT_REGISTRY));
 
-        if (bot.getConfig().isSpotifyEnabled()) {
+        if (bot.getConfig().
+
+                isSpotifyEnabled()) {
             final SpotifySourceManager spotify = new SpotifySourceManager(new String[]{"ytsearch:%ISRC%", "ytsearch:%QUERY% music", "ytsearch:%QUERY% song", "ytsearch:%QUERY%"}, bot.getConfig().getSpotifyClientID(), bot.getConfig().getSpotifyClientSecret(), "DE", this);
             spotify.setPlaylistPageLimit(25);
             spotify.setAlbumPageLimit(25);
@@ -75,28 +129,23 @@ public class PlayerManager extends DefaultAudioPlayerManager
         DuncteBotSources.registerAll(this, "en-US");
     }
 
-    public Bot getBot()
-    {
+    public Bot getBot() {
         return bot;
     }
 
-    public boolean hasHandler(Guild guild)
-    {
-        return guild.getAudioManager().getSendingHandler()!=null;
+    public boolean hasHandler(Guild guild) {
+        return guild.getAudioManager().getSendingHandler() != null;
     }
 
-    public AudioHandler setUpHandler(Guild guild)
-    {
+    public AudioHandler setUpHandler(Guild guild) {
         AudioHandler handler;
-        if(guild.getAudioManager().getSendingHandler()==null)
-        {
+        if (guild.getAudioManager().getSendingHandler() == null) {
             AudioPlayer player = createPlayer();
             player.setVolume(bot.getSettingsManager().getSettings(guild).getVolume());
             handler = new AudioHandler(this, guild, player);
             player.addListener(handler);
             guild.getAudioManager().setSendingHandler(handler);
-        }
-        else
+        } else
             handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
         return handler;
     }
