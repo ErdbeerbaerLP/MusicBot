@@ -64,12 +64,12 @@ public class PlayerManager extends DefaultAudioPlayerManager
         registerSourceManager(new HttpAudioSourceManager(MediaContainerRegistry.DEFAULT_REGISTRY));
 
         if (bot.getConfig().isSpotifyEnabled()) {
-            final SpotifySourceManager spotify = new SpotifySourceManager(null, bot.getConfig().getSpotifyClientID(), bot.getConfig().getSpotifyClientSecret(), "DE", this);
-            spotify.setPlaylistPageLimit(18);
-            spotify.setAlbumPageLimit(18);
+            final SpotifySourceManager spotify = new SpotifySourceManager(new String[]{"ytsearch:%ISRC%", "ytsearch:%QUERY% music", "ytsearch:%QUERY% song", "ytsearch:%QUERY%"}, bot.getConfig().getSpotifyClientID(), bot.getConfig().getSpotifyClientSecret(), "DE", this);
+            spotify.setPlaylistPageLimit(25);
+            spotify.setAlbumPageLimit(25);
             registerSourceManager(spotify);
-
         }
+
         AudioSourceManagers.registerLocalSource(this);
 
         DuncteBotSources.registerAll(this, "en-US");

@@ -16,59 +16,56 @@
 package com.jagrosh.jmusicbot.commands.music;
 
 import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
-import com.jagrosh.jmusicbot.audio.RequestMetadata;
-import com.jagrosh.jmusicbot.audio.SponsorblockHandler;
-import com.jagrosh.jmusicbot.commands.owner.PlaylistCmd;
-import com.jagrosh.jmusicbot.settings.Settings;
-import com.jagrosh.jmusicbot.utils.TimeUtil;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
 import com.jagrosh.jmusicbot.audio.QueuedTrack;
+import com.jagrosh.jmusicbot.audio.RequestMetadata;
+import com.jagrosh.jmusicbot.audio.SponsorblockHandler;
 import com.jagrosh.jmusicbot.commands.DJCommand;
 import com.jagrosh.jmusicbot.commands.MusicCommand;
 import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
+import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
+import com.jagrosh.jmusicbot.utils.TimeUtil;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import de.erdbeerbaerlp.jsponsorblock.JSponsorBlock;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.erdbeerbaerlp.jsponsorblock.JSponsorBlock;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.exceptions.PermissionException;
-
 /**
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class PlayCmd extends MusicCommand
+public class RadioCmd extends MusicCommand
 {
     private final static String LOAD = "\uD83D\uDCE5"; // 📥
     private final static String CANCEL = "\uD83D\uDEAB"; // 🚫
 
     private final String loadingEmoji;
 
-    public PlayCmd(Bot bot)
+    public RadioCmd(Bot bot)
     {
         super(bot);
         this.loadingEmoji = bot.getConfig().getLoading();
-        this.name = "play";
-        this.arguments = "<title|URL|subcommand> [?shuffle]";
-        this.help = "plays the provided song";
+        this.name = "radio";
+        this.arguments = "<title|URL|subcommand>";
+        this.help = "permanently plays the provided playlist";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.beListening = true;
         this.bePlaying = false;
@@ -145,55 +142,6 @@ public class PlayCmd extends MusicCommand
         }
         private static final Pattern YOUTUBE_REGEX = Pattern.compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube(?:-nocookie)?\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|live\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
-        private void loadSingle(AudioTrack track, AudioPlaylist playlist)
-        {
-            if(bot.getConfig().isTooLong(track))
-            {
-                m.editMessage(FormatUtil.filter(event.getClient().getWarning()+" This track (**"+track.getInfo().title+"**) is longer than the allowed maximum: `"
-                        + TimeUtil.formatTime(track.getDuration())+"` > `"+ TimeUtil.formatTime(bot.getConfig().getMaxSeconds()*1000)+"`")).queue();
-                return;
-            }
-            AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
-            int pos = handler.addTrack(new QueuedTrack(track, RequestMetadata.fromResultHandler(track, event)))+1;
-            String addMsg = FormatUtil.filter(event.getClient().getSuccess()+" Added **"+track.getInfo().title
-                    +"** (`"+ TimeUtil.formatTime(track.getDuration())+"`) "+(pos==0?"to begin playing":" to the queue at position "+pos));
-
-            final Settings settings = event.getClient().getSettingsFor(event.getGuild());
-
-            if (settings.getCategories().length > 0) {
-                final Matcher m = YOUTUBE_REGEX.matcher(track.getInfo().uri);
-                if (m.matches()) {
-                    final String vidID = m.group(5);
-                    try {
-                        SponsorblockHandler.addSegment(track, JSponsorBlock.getSkipableSegments(vidID));
-                        addMsg += "\nSponsorblock data has been found and will be applied!";
-                    } catch (IOException ignored) {
-                    }
-                }
-            }
-            if (playlist == null || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION))
-                m.editMessage(addMsg).queue();
-            else
-            {
-                String finalAddMsg = addMsg;
-                new ButtonMenu.Builder()
-                        .setText(addMsg+"\n"+event.getClient().getWarning()+" This track has a playlist of **"+playlist.getTracks().size()+"** tracks attached. Select "+LOAD+" to load playlist.")
-                        .setChoices(LOAD, CANCEL)
-                        .setEventWaiter(bot.getWaiter())
-                        .setTimeout(30, TimeUnit.SECONDS)
-                        .setAction(re ->
-                        {
-                            if(re.getName().equals(LOAD))
-                                m.editMessage(finalAddMsg +"\n"+event.getClient().getSuccess()+" Loaded **"+loadPlaylist(playlist, track)+"** additional tracks!").queue();
-                            else
-                                m.editMessage(finalAddMsg).queue();
-                        }).setFinalAction(m ->
-                        {
-                            try{ m.clearReactions().queue(); }catch(PermissionException ignore) {}
-                        }).build().display(m);
-            }
-        }
-
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
         {
             int[] count = {0};
@@ -225,7 +173,7 @@ public class PlayCmd extends MusicCommand
         @Override
         public void trackLoaded(AudioTrack track)
         {
-            loadSingle(track, null);
+            m.editMessage(event.getClient().getError()+" The provided URL is not an playlist!").queue();
         }
 
         @Override
@@ -233,13 +181,12 @@ public class PlayCmd extends MusicCommand
         {
             if(playlist.getTracks().size()==1 || playlist.isSearchResult())
             {
-                AudioTrack single = playlist.getSelectedTrack()==null ? playlist.getTracks().get(0) : playlist.getSelectedTrack();
-                loadSingle(single, null);
+                m.editMessage(event.getClient().getError()+" The provided URL is not an playlist!").queue();
             }
             else if (playlist.getSelectedTrack()!=null)
             {
                 AudioTrack single = playlist.getSelectedTrack();
-                loadSingle(single, playlist);
+                //loadSingle(single, playlist);
             }
             else
             {

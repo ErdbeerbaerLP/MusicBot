@@ -15,33 +15,29 @@
  */
 package com.jagrosh.jmusicbot.audio;
 
+import com.github.topi314.lavasrc.mirror.MirroringAudioSourceManager;
+import com.github.topi314.lavasrc.mirror.MirroringAudioTrack;
+import com.github.topi314.lavasrc.spotify.SpotifyAudioTrack;
 import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
 import com.jagrosh.jmusicbot.queue.AbstractQueue;
 import com.jagrosh.jmusicbot.settings.QueueType;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.jagrosh.jmusicbot.settings.RepeatMode;
-import com.jagrosh.jmusicbot.utils.OtherUtil;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import com.sedmelluq.discord.lavaplayer.track.*;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
+
 import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import java.nio.ByteBuffer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import de.erdbeerbaerlp.jsponsorblock.JSponsorBlock;
-import de.erdbeerbaerlp.jsponsorblock.Segment;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -73,6 +69,8 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     private AbstractQueue<QueuedTrack> queue;
     private int retries = 0;
 
+    private final HashMap<Long,AudioTrack> trackHistory = new HashMap<>();
+
     protected AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player)
     {
         this.manager = manager;
@@ -80,6 +78,10 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         this.guildId = guild.getIdLong();
 
         this.setQueueType(manager.getBot().getSettingsManager().getSettings(guildId).getQueueType());
+    }
+
+    public HashMap<Long, AudioTrack> getTrackHistory() {
+        return trackHistory;
     }
 
     public void setQueueType(QueueType type)
@@ -225,6 +227,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             QueuedTrack qt = queue.pull();
             player.playTrack(qt.getTrack());
         }
+        trackHistory.put(Instant.now().getEpochSecond(), track);
+        if(trackHistory.size()>9){
+            final Long topmost = trackHistory.entrySet().stream().sorted(Map.Entry.comparingByKey()).iterator().next().getKey();
+            trackHistory.remove(topmost);
+        }
         SponsorblockHandler.removeSegment(track);
     }
 
@@ -283,14 +290,43 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             {
                 eb.setThumbnail("https://img.youtube.com/vi/"+track.getIdentifier()+"/mqdefault.jpg");
             }
-            
+            long spYoutubeLen = 0;
+            String spYoutubeUploader = null;
+            if(track instanceof SpotifyAudioTrack sAT && manager.getBot().getConfig().useNPImages()){
+                eb.setThumbnail(track.getInfo().artworkUrl);
+                final AudioItem apply = ((MirroringAudioSourceManager) sAT.getSourceManager()).getResolver().apply(sAT);
+                if(apply instanceof BasicAudioPlaylist pl){
+                    if(!pl.getTracks().isEmpty() && pl.getTracks().get(0) instanceof dev.lavalink.youtube.track.YoutubeAudioTrack yat){
+                        eb.addField("Resolved YouTube URL",yat.getInfo().uri,true);
+                        eb.addField("Resolved YouTube Title",yat.getInfo().title,true);
+                        spYoutubeLen = yat.getDuration();
+                        spYoutubeUploader = yat.getInfo().author;
+                    }
+                }
+            }
+            if(track.getDuration() == spYoutubeLen) spYoutubeLen = 0;
+            if(TimeUtil.formatTime(track.getDuration()).equals(TimeUtil.formatTime(spYoutubeLen))) spYoutubeLen = 0;
+            if(track.getInfo().author.equals(spYoutubeUploader)) spYoutubeUploader = null;
+/*
+            eb.addField("identifier",track.getIdentifier(),true);
+            eb.addField("uri",track.getInfo().uri,true);
+            eb.addField("author",track.getInfo().author,true);
+            eb.addField("artworkUrl",track.getInfo().artworkUrl,true);
+            eb.addField("length",""+track.getInfo().length,true);
+            eb.addField("title",track.getInfo().title,true);
+            eb.addField("isrc",track.getInfo().isrc,true);
+            eb.addField("state",track.getState().name(),true);
+            eb.addField("isSeekable",track.isSeekable()?"true":"false",true);
+            eb.addField("isStream",track.getInfo().isStream?"true":"false",true);
+            eb.addField("Track Class",track.getClass().getCanonicalName(),true);
+*/
             if(track.getInfo().author != null && !track.getInfo().author.isEmpty())
-                eb.setFooter("Source: " + track.getInfo().author, null);
+                eb.setFooter("Source: " + (spYoutubeUploader==null?track.getInfo().author:(spYoutubeUploader+" ("+track.getInfo().author+")")), null);
 
-            double progress = (double)audioPlayer.getPlayingTrack().getPosition()/track.getDuration();
+            double progress = (double)audioPlayer.getPlayingTrack().getPosition()/(spYoutubeLen!=0?spYoutubeLen:track.getDuration());
             eb.setDescription(getStatusEmoji()
                     + " "+FormatUtil.progressBar(progress)
-                    + " `[" + TimeUtil.formatTime(track.getPosition()) + "/" + TimeUtil.formatTime(track.getDuration()) + "]` "
+                    + " `[" + TimeUtil.formatTime(track.getPosition()) + "/" + TimeUtil.formatTime((spYoutubeLen!=0?spYoutubeLen:track.getDuration())) + (spYoutubeLen==0?"":("("+TimeUtil.formatTime(track.getDuration())+")"))+ "]` "
                     + FormatUtil.volumeIcon(audioPlayer.getVolume()));
             
             return mb.setEmbeds(eb.build()).build();

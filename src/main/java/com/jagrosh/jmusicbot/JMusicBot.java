@@ -199,6 +199,7 @@ public class JMusicBot
                         new PlayCmd(bot),
                         new PlaylistsCmd(bot),
                         new QueueCmd(bot),
+                        new HistoryCmd(bot),
                         new RemoveCmd(bot),
                         new SearchCmd(bot),
                         new SCSearchCmd(bot),

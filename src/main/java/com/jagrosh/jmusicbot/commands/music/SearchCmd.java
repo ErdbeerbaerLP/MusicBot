@@ -122,8 +122,7 @@ public class SearchCmd extends MusicCommand
                                     : " to the queue at position "+pos));
                     })
                     .setCancel((msg) -> {})
-                    .setUsers(event.getAuthor())
-                    ;
+                    .setUsers(event.getAuthor());
             for(int i=0; i<4 && i<playlist.getTracks().size(); i++)
             {
                 AudioTrack track = playlist.getTracks().get(i);
