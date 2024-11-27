@@ -115,9 +115,12 @@ public class QueueCmd extends MusicCommand
      @Override
     public void doCommand(SlashCommandEvent event)
     {
-        int pagenum = 1;
+        int pagenum;
         if(event.hasOption("page"))
             pagenum = event.getOption("page").getAsInt();
+        else {
+            pagenum = 1;
+        }
         AudioHandler ah = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
         List<QueuedTrack> list = ah.getQueue().getList();
         if(list.isEmpty())
@@ -148,7 +151,7 @@ public class QueueCmd extends MusicCommand
                 .setUsers(event.getUser())
                 .setColor(event.getGuild().getSelfMember().getColor())
                 ;
-        builder.build().paginate(event.getChannel(), pagenum);
+        event.deferReply().queue(i->builder.build().paginate(i, pagenum));
     }
 
     private String getQueueTitle(AudioHandler ah, String success, int songslength, long total, RepeatMode repeatmode, QueueType queueType)
