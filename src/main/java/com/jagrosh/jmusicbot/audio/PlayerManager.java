@@ -55,30 +55,15 @@ public class PlayerManager extends DefaultAudioPlayerManager {
 
         YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(true, new Web(), new WebEmbedded(), new TvHtml5Embedded(), new Ios(), new Music());
         yt.setPlaylistPageCount(bot.getConfig().getMaxYTPlaylistPages());
-        if (!refreshTokenFile.exists()) {
-            try {
-                refreshTokenFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            yt.useOauth2(null, false);
-
-            while (yt.getOauth2RefreshToken() == null) {
+        if (bot.getConfig().isOAUTHEnabled())
+            if (!refreshTokenFile.exists()) {
                 try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    return;
+                    refreshTokenFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }
-            try {
-                Files.writeString(refreshTokenFile.toPath(), yt.getOauth2RefreshToken());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                yt.useOauth2(null, false);
 
-        } else {
-            try {
-                yt.useOauth2(Files.readString(refreshTokenFile.toPath()), true);
                 while (yt.getOauth2RefreshToken() == null) {
                     try {
                         Thread.sleep(1000);
@@ -91,11 +76,27 @@ public class PlayerManager extends DefaultAudioPlayerManager {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                yt.useOauth2(null, false);
+
+            } else {
+                try {
+                    yt.useOauth2(Files.readString(refreshTokenFile.toPath()), true);
+                    while (yt.getOauth2RefreshToken() == null) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    }
+                    try {
+                        Files.writeString(refreshTokenFile.toPath(), yt.getOauth2RefreshToken());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    yt.useOauth2(null, false);
+                }
             }
-        }
 
         registerSourceManager(yt);
 
