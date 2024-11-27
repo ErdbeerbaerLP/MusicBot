@@ -21,6 +21,7 @@ import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -28,6 +29,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author John Grosh <john.a.grosh@gmail.com>
@@ -56,7 +58,7 @@ public class LeaveServerCmd extends OwnerCommand {
         for (Guild guild : guilds) {
             final String name = guild.getName();
             if (name.toLowerCase().contains(val.toLowerCase())) {
-                choices.add(new Command.Choice(name, guild.getId()));
+                choices.add(new Command.Choice(name+ " - "+guild.getId(), guild.getId()));
                 count++;
                 if (count >= 20) break;
             }
@@ -76,13 +78,14 @@ public class LeaveServerCmd extends OwnerCommand {
             event.reply("Please specify a valid Server ID").setEphemeral(true).queue();
             return;
         }
+        final CompletableFuture<InteractionHook> reply = event.deferReply(true).submit();
         final Guild server = event.getJDA().getGuildById(event.getOption("server").getAsString());
         if (server == null) {
-            event.reply("Unknown Server").setEphemeral(true).queue();
+            reply.thenAccept((m)->m.editOriginal("Unknown Server").queue());
             return;
         }
         server.leave().complete();
-        event.reply("Left the Server \"" + server.getName() + "\"").setEphemeral(true).queue();
+        reply.thenAccept((m)->m.editOriginal("Left the Server \"" + server.getName() + "\"").queue());
     }
 
     @Override
