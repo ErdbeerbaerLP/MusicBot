@@ -84,7 +84,7 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.8.2</version>
+            <version>1.8.3</version>
         </dependency>
 	<dependency>
 	    <groupId>com.github.jagrosh</groupId>
@@ -136,7 +136,7 @@
         <dependency>
             <groupId>com.github.topi314.lavasrc</groupId>
             <artifactId>lavasrc</artifactId>
-            <version>4.2.0</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.topi314.lavasrc</groupId>
