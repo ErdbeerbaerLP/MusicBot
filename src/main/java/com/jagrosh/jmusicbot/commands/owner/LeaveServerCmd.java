@@ -51,6 +51,10 @@ public class LeaveServerCmd extends OwnerCommand {
 
     @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {
+        if(event.getUser().getIdLong() != bot.getConfig().getOwnerId()) {
+            event.replyChoice("You are not the owner of this bot!", "null").queue();
+            return;
+        }
         final List<Guild> guilds = bot.getJDA().getGuilds();
         final String val = event.getFocusedOption().getValue();
         final ArrayList<Command.Choice> choices = new ArrayList<>();
