@@ -20,10 +20,13 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
 import com.jagrosh.jmusicbot.settings.Settings;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -41,10 +44,29 @@ public class AutoplaylistCmd extends OwnerCommand
         this.arguments = "<name|NONE>";
         this.options = Collections.singletonList(
                 new OptionData(OptionType.STRING, "name", "Name of the playlist, or \"NONE\"")
-                        .setRequired(true)
+                        .setRequired(true).setAutoComplete(true)
         );
         this.help = "sets the default playlist for the server";
         this.aliases = bot.getConfig().getAliases(this.name);
+    }
+    @Override
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {
+        if (event.getFocusedOption().getName().equals("name")) {
+            final String val = event.getFocusedOption().getValue();
+            final ArrayList<net.dv8tion.jda.api.interactions.commands.Command.Choice> choices = new ArrayList<>();
+            final ArrayList<String> playlists = new ArrayList<>();
+            playlists.add("NONE");
+            playlists.addAll(bot.getPlaylistLoader().getPlaylistNames());
+            int count = 0;
+            for (String name : playlists) {
+                if (name.toLowerCase().contains(val.toLowerCase())) {
+                    choices.add(new net.dv8tion.jda.api.interactions.commands.Command.Choice(name, name));
+                    count++;
+                    if (count >= 20) break;
+                }
+            }
+            event.replyChoices(choices).queue();
+        }
     }
 
     @Override
