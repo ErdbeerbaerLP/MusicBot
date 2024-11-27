@@ -48,7 +48,7 @@ public class QueueTypeCmd extends AdminCommand
         }
         this.options = Collections.singletonList(
                 new OptionData(OptionType.STRING, "queue-type", "Queue Type to use")
-                        .setRequired(true)
+                        .setRequired(true).addChoices(queueTypes)
         );
         this.aliases = bot.getConfig().getAliases(this.name);
     }
