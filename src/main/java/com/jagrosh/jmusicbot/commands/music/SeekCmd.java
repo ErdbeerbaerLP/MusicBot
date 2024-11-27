@@ -16,12 +16,17 @@
 package com.jagrosh.jmusicbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
 import com.jagrosh.jmusicbot.commands.DJCommand;
 import com.jagrosh.jmusicbot.commands.MusicCommand;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.Collections;
 
 
 /**
@@ -38,6 +43,10 @@ public class SeekCmd extends MusicCommand
         this.aliases = bot.getConfig().getAliases(this.name);
         this.beListening = true;
         this.bePlaying = true;
+        this.options = Collections.singletonList(
+                new OptionData(OptionType.STRING, "time", "Time to seek. Format \"[+ | -] <HH:MM:SS | MM:SS | SS>|<0h0m0s | 0m0s | 0s>\"")
+                        .setRequired(true)
+        );
     }
 
     @Override
@@ -88,5 +97,54 @@ public class SeekCmd extends MusicCommand
             }
         }
         event.replySuccess("Successfully seeked to `" + TimeUtil.formatTime(playingTrack.getPosition()) + "/" + TimeUtil.formatTime(playingTrack.getDuration()) + "`!");
+    }
+    @Override
+    public void doCommand(SlashCommandEvent event)
+    {
+        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        AudioTrack playingTrack = handler.getPlayer().getPlayingTrack();
+        if (!playingTrack.isSeekable())
+        {
+            event.reply("This track is not seekable.").queue();
+            return;
+        }
+
+
+        if (!DJCommand.checkDJPermission(event) && playingTrack.getUserData(Long.class) != event.getUser().getIdLong())
+        {
+            event.reply("You cannot seek **" + playingTrack.getInfo().title + "** because you didn't add it!").queue();
+            return;
+        }
+
+        String args = event.getOption("time").getAsString();
+        TimeUtil.SeekTime seekTime = TimeUtil.parseTime(args);
+        if (seekTime == null)
+        {
+            event.reply("Invalid seek! Expected format: " + arguments + "\nExamples: `1:02:23` `+1:10` `-90`, `1h10m`, `+90s`").queue();
+            return;
+        }
+
+        long currentPosition = playingTrack.getPosition();
+        long trackDuration = playingTrack.getDuration();
+
+        long seekMilliseconds = seekTime.relative ? currentPosition + seekTime.milliseconds : seekTime.milliseconds;
+        if (seekMilliseconds > trackDuration)
+        {
+            event.reply("Cannot seek to `" + TimeUtil.formatTime(seekMilliseconds) + "` because the current track is `" + TimeUtil.formatTime(trackDuration) + "` long!").queue();
+        }
+        else
+        {
+            try
+            {
+                playingTrack.setPosition(seekMilliseconds);
+            }
+            catch (Exception e)
+            {
+                event.reply("An error occurred while trying to seek!").queue();
+                e.printStackTrace();
+                return;
+            }
+        }
+        event.reply("Successfully seeked to `" + TimeUtil.formatTime(playingTrack.getPosition()) + "/" + TimeUtil.formatTime(playingTrack.getDuration()) + "`!").queue();
     }
 }

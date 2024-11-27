@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.commands.music;
 
 import com.jagrosh.jmusicbot.audio.RequestMetadata;
+import com.jagrosh.jmusicbot.commands.LegacyMusicCommand;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -37,7 +38,7 @@ import net.dv8tion.jda.api.entities.Message;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class SearchCmd extends MusicCommand 
+public class SearchCmd extends LegacyMusicCommand
 {
     protected String searchPrefix = "ytsearch:";
     private final OrderedMenu.Builder builder;

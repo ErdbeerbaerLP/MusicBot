@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jmusicbot.Bot;
@@ -30,11 +31,18 @@ import com.jagrosh.jmusicbot.utils.FormatUtil;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -57,6 +65,10 @@ public class HistoryCmd extends MusicCommand
         this.beListening = true;
         this.bePlaying = false;
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
+        this.options = Collections.singletonList(
+                new OptionData(OptionType.CHANNEL, "track", "Entry from the history to play")
+                        .setRequired(true).setAutoComplete(true)
+        );
         builder = new OrderedMenu.Builder()
             .allowTextInput(true)
             .useNumbers()
@@ -68,7 +80,6 @@ public class HistoryCmd extends MusicCommand
     @Override
     public void doCommand(CommandEvent event)
     {
-
         AudioHandler ah = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
         final HashMap<Long, AudioTrack> history = ah.getTrackHistory().entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));;
         if(history.isEmpty()){
@@ -107,5 +118,45 @@ public class HistoryCmd extends MusicCommand
             builder.addChoices("<t:"+time+":R> `["+ TimeUtil.formatTime(track.getDuration())+"]` [**"+track.getInfo().title+"**]("+track.getInfo().uri+")");
         }
         event.reply(searchingEmoji+"Loading history...", m->builder.build().display(m));
+    }
+
+    @Override
+    public void doCommand(SlashCommandEvent event)
+    {
+        AudioHandler ah = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+        final HashMap<Long, AudioTrack> history = ah.getTrackHistory().entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));;
+        if(!event.hasOption("track")){
+            event.reply(event.getClient().getWarning()+" No history available.").queue();
+            return;
+        }
+        final CompletableFuture<InteractionHook> reply = event.deferReply().submit();
+        AudioTrack track = history.get(event.getOption("track"));
+        if(bot.getConfig().isTooLong(track))
+                    {
+                        reply.thenAccept((m)->m.editOriginal("This track (**"+track.getInfo().title+"**) is longer than the allowed maximum: `"
+                                + TimeUtil.formatTime(track.getDuration())+"` > `"+bot.getConfig().getMaxTime()+"`").queue());
+                        return;
+                    }
+        AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+        int pos = handler.addTrack(new QueuedTrack(track.makeClone(), RequestMetadata.fromResultHandler(track, event, null)))+1;
+        reply.thenAccept((m)->m.editOriginal("Added **" + FormatUtil.filter(track.getInfo().title)
+                            + "** (`" + TimeUtil.formatTime(track.getDuration()) + "`) " + (pos==0 ? "to begin playing"
+                            : " to the queue at position "+pos)).queue());
+
+    }
+
+    @Override
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {
+        AudioHandler ah = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+        final HashMap<Long, AudioTrack> history = ah.getTrackHistory().entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));;
+
+
+        final ArrayList<Command.Choice> tracks = new ArrayList<>();
+        for (Long time : history.keySet()) {
+            AudioTrack track = history.get(time);
+            tracks.add(new Command.Choice(track.getInfo().title, time));
+            builder.addChoices("[" + TimeUtil.formatTime(track.getDuration()) + "] " + track.getInfo().title);
+        }
+
     }
 }

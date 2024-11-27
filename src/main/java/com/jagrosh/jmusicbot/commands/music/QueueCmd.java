@@ -15,9 +15,11 @@
  */
 package com.jagrosh.jmusicbot.commands.music;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
@@ -30,6 +32,8 @@ import com.jagrosh.jmusicbot.utils.FormatUtil;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -50,6 +54,10 @@ public class QueueCmd extends MusicCommand
         this.aliases = bot.getConfig().getAliases(this.name);
         this.bePlaying = true;
         this.botPermissions = new Permission[]{Permission.MESSAGE_ADD_REACTION,Permission.MESSAGE_EMBED_LINKS};
+        this.options = Collections.singletonList(
+                new OptionData(OptionType.INTEGER, "page", "Page number to start")
+                        .setRequired(false)
+        );
         builder = new Paginator.Builder()
                 .setColumns(1)
                 .setFinalAction(m -> {try{m.clearReactions().queue();}catch(PermissionException ignore){}})
@@ -103,7 +111,46 @@ public class QueueCmd extends MusicCommand
                 ;
         builder.build().paginate(event.getChannel(), pagenum);
     }
-    
+
+     @Override
+    public void doCommand(SlashCommandEvent event)
+    {
+        int pagenum = 1;
+        if(event.hasOption("page"))
+            pagenum = event.getOption("page").getAsInt();
+        AudioHandler ah = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+        List<QueuedTrack> list = ah.getQueue().getList();
+        if(list.isEmpty())
+        {
+            MessageCreateData nowp = ah.getNowPlaying(event.getJDA());
+            MessageCreateData nonowp = ah.getNoMusicPlaying(event.getJDA());
+            MessageCreateData built = new MessageCreateBuilder()
+                    .setContent(event.getClient().getWarning() + " There is no music in the queue!")
+                    .setEmbeds((nowp==null ? nonowp : nowp).getEmbeds().get(0)).build();
+            event.reply(built).queue(q ->
+            {
+                if(nowp!=null)
+                    q.retrieveOriginal().queue((m->bot.getNowplayingHandler().setLastNPMessage(m)));
+            });
+            return;
+        }
+        String[] songs = new String[list.size()];
+        long total = 0;
+        for(int i=0; i<list.size(); i++)
+        {
+            total += list.get(i).getTrack().getDuration();
+            songs[i] = list.get(i).toString();
+        }
+        Settings settings = event.getClient().getSettingsFor(event.getGuild());
+        long fintotal = total;
+        builder.setText((i1,i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal, settings.getRepeatMode(), settings.getQueueType()))
+                .setItems(songs)
+                .setUsers(event.getUser())
+                .setColor(event.getGuild().getSelfMember().getColor())
+                ;
+        builder.build().paginate(event.getChannel(), pagenum);
+    }
+
     private String getQueueTitle(AudioHandler ah, String success, int songslength, long total, RepeatMode repeatmode, QueueType queueType)
     {
         StringBuilder sb = new StringBuilder();

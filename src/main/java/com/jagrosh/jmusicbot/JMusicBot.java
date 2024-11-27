@@ -238,6 +238,19 @@ public class JMusicBot
                         new ServersCmd(bot)
                 ).addSlashCommands(
 
+                        new LyricsCmd(bot),
+                        new NowplayingCmd(bot),
+                        new PlayCmd(bot, false),
+                        new PlaylistsCmd(bot),
+                        new QueueCmd(bot),
+                        new HistoryCmd(bot),
+                        new RemoveCmd(bot),
+                        //new SearchCmd(bot),
+                       //new SCSearchCmd(bot),
+                        new SeekCmd(bot),
+                        new ShuffleCmd(bot),
+                        new SkipCmd(bot),
+
                         new QueueTypeCmd(bot),
                         new SetdjCmd(bot),
                         new SkipratioCmd(bot),
@@ -260,8 +273,10 @@ public class JMusicBot
         cb.setHelpConsumer(ExtendedHelpCommand::execute);
 
         // enable eval if applicable
-        if(config.useEval())
+        if(config.useEval()) {
             cb.addCommand(new EvalCmd(bot));
+            cb.addSlashCommand(new EvalCmd(bot));
+        }
 
         // set status if set in config
         if(config.getStatus() != OnlineStatus.UNKNOWN)

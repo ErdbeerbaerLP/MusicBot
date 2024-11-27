@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
 import com.jagrosh.jmusicbot.commands.MusicCommand;
@@ -51,6 +52,24 @@ public class ShuffleCmd extends MusicCommand
                 break;
             default:
                 event.replySuccess("You successfully shuffled your "+s+" entries.");
+                break;
+        }
+    }
+    @Override
+    public void doCommand(SlashCommandEvent event)
+    {
+        AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+        int s = handler.getQueue().shuffle(event.getUser().getIdLong());
+        switch (s)
+        {
+            case 0:
+                event.reply("You don't have any music in the queue to shuffle!").queue();
+                break;
+            case 1:
+                event.reply("You only have one song in the queue!").queue();
+                break;
+            default:
+                event.reply("You successfully shuffled your "+s+" entries.").queue();
                 break;
         }
     }
