@@ -66,7 +66,7 @@ public class HistoryCmd extends MusicCommand
         this.bePlaying = false;
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
         this.options = Collections.singletonList(
-                new OptionData(OptionType.CHANNEL, "track", "Entry from the history to play")
+                new OptionData(OptionType.STRING, "track", "Entry from the history to play")
                         .setRequired(true).setAutoComplete(true)
         );
         builder = new OrderedMenu.Builder()

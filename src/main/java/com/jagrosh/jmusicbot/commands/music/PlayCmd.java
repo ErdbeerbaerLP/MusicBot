@@ -531,7 +531,7 @@ public class PlayCmd extends MusicCommand {
                 event.reply(event.getClient().getError() + " Please include a playlist name.");
                 return;
             }
-            Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getOption("playlier").getAsString());
+            Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getOption("playlist").getAsString());
             if (playlist == null) {
                 event.reply("I could not find `" + event.getOption("playlier").getAsString() + ".txt` in the Playlists folder.");
                 return;
