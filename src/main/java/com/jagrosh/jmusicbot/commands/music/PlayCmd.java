@@ -533,10 +533,10 @@ public class PlayCmd extends MusicCommand {
             }
             Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getOption("playlist").getAsString());
             if (playlist == null) {
-                event.reply("I could not find `" + event.getOption("playlier").getAsString() + ".txt` in the Playlists folder.");
+                event.reply("I could not find `" + event.getOption("playlist").getAsString() + ".txt` in the Playlists folder.");
                 return;
             }
-            event.getChannel().sendMessage(loadingEmoji + " Loading playlist **" + event.getOption("playlier").getAsString() + "**... (" + playlist.getItems().size() + " items)").queue(m ->
+            event.getChannel().sendMessage(loadingEmoji + " Loading playlist **" + event.getOption("playlist").getAsString() + "**... (" + playlist.getItems().size() + " items)").queue(m ->
             {
                 AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                 playlist.loadTracks(bot.getPlayerManager(), (at) -> handler.addTrack(new QueuedTrack(at, RequestMetadata.fromResultHandler(at, event, "playlist"))), () -> {
