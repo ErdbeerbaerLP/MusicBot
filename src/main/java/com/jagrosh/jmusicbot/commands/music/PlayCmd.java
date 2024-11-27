@@ -82,7 +82,7 @@ public class PlayCmd extends MusicCommand {
                         .setRequired(false),
                 new OptionData(OptionType.ATTACHMENT, "file", "File to play")
                         .setRequired(false),
-                new OptionData(OptionType.ATTACHMENT, "playlist", "Playlist to play")
+                new OptionData(OptionType.STRING, "playlist", "Playlist to play")
                         .setRequired(false).setAutoComplete(true),
                 new OptionData(OptionType.BOOLEAN, "shuffle", "Should the playlist be shuffled, if a playlist is provided?")
                         .setRequired(false)
