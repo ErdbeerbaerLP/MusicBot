@@ -15,55 +15,71 @@
  */
 package com.jagrosh.jmusicbot.commands.admin;
 
-import java.util.List;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.AdminCommand;
 import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
- *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class SettcCmd extends AdminCommand 
-{
-    public SettcCmd(Bot bot)
-    {
+public class SettcCmd extends AdminCommand {
+    public SettcCmd(Bot bot) {
         this.name = "settc";
         this.help = "sets the text channel for music commands";
         this.arguments = "<channel|NONE>";
+        this.options = Collections.singletonList(
+                new OptionData(OptionType.CHANNEL, "channel", "Channel to use for music commands. Omit to clear")
+                        .setRequired(false).setChannelTypes(ChannelType.TEXT, ChannelType.VOICE, ChannelType.STAGE, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.NEWS)
+        );
         this.aliases = bot.getConfig().getAliases(this.name);
     }
-    
+
     @Override
-    protected void execute(CommandEvent event) 
-    {
-        if(event.getArgs().isEmpty())
-        {
-            event.reply(event.getClient().getError()+" Please include a text channel or NONE");
+    protected void execute(SlashCommandEvent event) {
+        Settings s = event.getClient().getSettingsFor(event.getGuild());
+        if (!event.hasOption("channel")) {
+            s.setTextChannel(null);
+            event.reply(event.getClient().getSuccess()+" Music commands can now be used in any channel").setEphemeral(true).queue();
+        }
+        else {
+            s.setTextChannel(event.getOption("channel").getAsChannel().asGuildMessageChannel());
+            event.reply(event.getClient().getSuccess() + " Music commands can now only be used in <#" + event.getOption("channel").getAsChannel().getId() + ">").setEphemeral(true).queue();
+        }
+
+    }
+
+    @Override
+    protected void execute(CommandEvent event) {
+        if (event.getArgs().isEmpty()) {
+            event.reply(event.getClient().getError() + " Please include a text channel or NONE");
             return;
         }
         Settings s = event.getClient().getSettingsFor(event.getGuild());
-        if(event.getArgs().equalsIgnoreCase("none"))
-        {
+        if (event.getArgs().equalsIgnoreCase("none")) {
             s.setTextChannel(null);
-            event.reply(event.getClient().getSuccess()+" Music commands can now be used in any channel");
-        }
-        else
-        {
+            event.reply(event.getClient().getSuccess() + " Music commands can now be used in any channel");
+        } else {
             List<TextChannel> list = FinderUtil.findTextChannels(event.getArgs(), event.getGuild());
-            if(list.isEmpty())
-                event.reply(event.getClient().getWarning()+" No Text Channels found matching \""+event.getArgs()+"\"");
-            else if (list.size()>1)
-                event.reply(event.getClient().getWarning()+FormatUtil.listOfTChannels(list, event.getArgs()));
-            else
-            {
+            if (list.isEmpty())
+                event.reply(event.getClient().getWarning() + " No Text Channels found matching \"" + event.getArgs() + "\"");
+            else if (list.size() > 1)
+                event.reply(event.getClient().getWarning() + FormatUtil.listOfTChannels(list, event.getArgs()));
+            else {
                 s.setTextChannel(list.get(0));
-                event.reply(event.getClient().getSuccess()+" Music commands can now only be used in <#"+list.get(0).getId()+">");
+                event.reply(event.getClient().getSuccess() + " Music commands can now only be used in <#" + list.get(0).getId() + ">");
             }
         }
     }
-    
+
 }
