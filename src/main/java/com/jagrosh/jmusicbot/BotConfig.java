@@ -44,7 +44,7 @@ public class BotConfig
     private String token, prefix, altprefix, helpWord, playlistsFolder, logLevel,
             successEmoji, warningEmoji, errorEmoji, loadingEmoji, searchingEmoji,
             evalEngine;
-    private boolean stayInChannel, songInGame, npImages, updatealerts, useEval, dbots;
+    private boolean stayInChannel, songInGame, npImages, updatealerts, useEval, dbots, useYTLogin;
     private long owner, maxSeconds, aloneTimeUntilStop;
     private int maxYTPlaylistPages;
     private double skipratio;
@@ -104,6 +104,7 @@ public class BotConfig
             aliases = config.getConfig("aliases");
             transforms = config.getConfig("transforms");
             skipratio = config.getDouble("skipratio");
+            useYTLogin = config.getBoolean("useYTLogin");
             dbots = owner == 113156185389092864L;
             
             // we may need to write a new config file
@@ -398,5 +399,8 @@ public class BotConfig
 
     public boolean isSpotifyEnabled() {
         return !getSpotifyClientID().isEmpty() && !getSpotifyClientSecret().isEmpty();
+    }
+    public boolean isOAUTHEnabled() {
+        return useYTLogin;
     }
 }
