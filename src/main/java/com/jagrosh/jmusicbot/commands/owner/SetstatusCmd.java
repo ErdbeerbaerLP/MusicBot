@@ -78,10 +78,10 @@ public class SetstatusCmd extends OwnerCommand {
             }
         if(event.hasOption("type")) {
             Activity.ActivityType type = Activity.ActivityType.valueOf(event.getOption("type").getAsString());
-            event.getJDA().getPresence().setActivity(Activity.of(type, event.hasOption("text") ? event.getOption("text").toString() : event.getJDA().getPresence().getActivity().getName(), event.hasOption("stream-url") ? event.getOption("stream-url").toString() : event.getJDA().getPresence().getActivity().getUrl()));
+            event.getJDA().getPresence().setActivity(Activity.of(type, event.hasOption("text") ? event.getOption("text").getAsString() : event.getJDA().getPresence().getActivity().getName(), event.hasOption("stream-url") ? event.getOption("stream-url").toString() : event.getJDA().getPresence().getActivity().getUrl()));
             response.append("Activity status edited!");
         }else if(event.hasOption("text")){
-            event.getJDA().getPresence().setActivity(Activity.of(event.getJDA().getPresence().getActivity().getType(), event.getOption("text").toString(), event.hasOption("stream-url") ? event.getOption("stream-url").toString() : event.getJDA().getPresence().getActivity().getUrl()));
+            event.getJDA().getPresence().setActivity(Activity.of(event.getJDA().getPresence().getActivity().getType(), event.getOption("text").getAsString(), event.hasOption("stream-url") ? event.getOption("stream-url").toString() : event.getJDA().getPresence().getActivity().getUrl()));
             response.append("Activity status edited!");
         } else if(event.hasOption("stream-url")){
             event.getJDA().getPresence().setActivity(Activity.of(event.getJDA().getPresence().getActivity().getType(), event.getJDA().getPresence().getActivity().getName(), event.hasOption("stream-url") ? event.getOption("stream-url").toString() : event.getJDA().getPresence().getActivity().getUrl()));
