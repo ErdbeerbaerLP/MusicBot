@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,17 +29,25 @@ import java.util.List;
  */
 public class ServersCmd extends OwnerCommand
 {
-    private final Bot bot;
-
     public ServersCmd(Bot bot)
     {
-        this.bot = bot;
         this.name = "servers";
         this.help = "lists all servers the bot is on";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.guildOnly = false;
     }
-    
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+        final List<Guild> guilds = event.getJDA().getGuilds();
+        final StringBuilder sb = new StringBuilder("```\n");
+        for(Guild guild : guilds){
+            sb.append(guild.getName()).append(" - ").append(guild.getId()).append("\n");
+        }
+        sb.append("\n```");
+        event.reply(sb.toString()).setEphemeral(true).queue();
+    }
+
     @Override
     protected void execute(CommandEvent event)
     {

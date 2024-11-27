@@ -16,9 +16,15 @@
 package com.jagrosh.jmusicbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -31,6 +37,12 @@ public class SetgameCmd extends OwnerCommand
         this.name = "setgame";
         this.help = "sets the game the bot is playing";
         this.arguments = "[action] [game]";
+        this.options = List.of(
+                new OptionData(OptionType.STRING, "action", "Status type")
+                        .setRequired(false),
+                new OptionData(OptionType.STRING, "game", "Game to display")
+                        .setRequired(false)
+        );
         this.aliases = bot.getConfig().getAliases(this.name);
         this.guildOnly = false;
         this.children = new OwnerCommand[]{
@@ -39,7 +51,11 @@ public class SetgameCmd extends OwnerCommand
             new SetwatchCmd()
         };
     }
-    
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+    }
+
     @Override
     protected void execute(CommandEvent event) 
     {
@@ -65,6 +81,11 @@ public class SetgameCmd extends OwnerCommand
             this.help = "sets the game the bot is playing to a stream";
             this.arguments = "<username> <game>";
             this.guildOnly = false;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+
         }
 
         @Override
@@ -101,6 +122,11 @@ public class SetgameCmd extends OwnerCommand
         }
 
         @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+
+        }
+
+        @Override
         protected void execute(CommandEvent event)
         {
             if(event.getArgs().isEmpty())
@@ -128,6 +154,11 @@ public class SetgameCmd extends OwnerCommand
             this.help = "sets the game the bot is watching";
             this.arguments = "<title>";
             this.guildOnly = false;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+
         }
 
         @Override

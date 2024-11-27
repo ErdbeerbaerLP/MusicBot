@@ -18,9 +18,14 @@ package com.jagrosh.jmusicbot.commands.owner;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.Collections;
 
 /**
  *
@@ -38,11 +43,41 @@ public class EvalCmd extends OwnerCommand
         this.help = "evaluates nashorn code";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.engine = bot.getConfig().getEvalEngine();
+        this.options = Collections.singletonList(
+                new OptionData(OptionType.STRING, "code", "Code to evaluate")
+                        .setRequired(true)
+        );
         this.guildOnly = false;
     }
-    
+
     @Override
-    protected void execute(CommandEvent event) 
+    protected void execute(SlashCommandEvent event)
+    {
+        ScriptEngine se = new ScriptEngineManager().getEngineByName(engine);
+        if(se == null)
+        {
+            event.reply("The eval engine provided in the config (`"+engine+"`) doesn't exist. This could be due to an invalid "
+                    + "engine name, or the engine not existing in your version of java (`"+System.getProperty("java.version")+"`).").setEphemeral(true).queue();
+            return;
+        }
+        se.put("bot", bot);
+        se.put("event", event);
+        se.put("jda", event.getJDA());
+        if (event.getChannelType() != ChannelType.PRIVATE) {
+            se.put("guild", event.getGuild());
+            se.put("channel", event.getChannel());
+        }
+        try
+        {
+            event.reply(event.getClient().getSuccess()+" Evaluated Successfully:\n```\n"+se.eval(event.getOption("code").getAsString())+" ```").setEphemeral(true).queue();
+        }
+        catch(Exception e)
+        {
+            event.reply(event.getClient().getError()+" An exception was thrown:\n```\n"+e+" ```").setEphemeral(true).queue();
+        }
+    }
+    @Override
+    protected void execute(CommandEvent event)
     {
         ScriptEngine se = new ScriptEngineManager().getEngineByName(engine);
         if(se == null)
@@ -61,7 +96,7 @@ public class EvalCmd extends OwnerCommand
         try
         {
             event.reply(event.getClient().getSuccess()+" Evaluated Successfully:\n```\n"+se.eval(event.getArgs())+" ```");
-        } 
+        }
         catch(Exception e)
         {
             event.reply(event.getClient().getError()+" An exception was thrown:\n```\n"+e+" ```");

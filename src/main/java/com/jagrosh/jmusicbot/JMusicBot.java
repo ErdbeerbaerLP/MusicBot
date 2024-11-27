@@ -236,6 +236,16 @@ public class JMusicBot
                         new ShutdownCmd(bot),
                         new LeaveServerCmd(bot),
                         new ServersCmd(bot)
+                ).addSlashCommands(
+                        new AutoplaylistCmd(bot),
+                        new DebugCmd(bot),
+                        new PlaylistCmd(bot),
+                        new SetavatarCmd(bot),
+                        new SetnameCmd(bot),
+                        new SetstatusCmd(bot),
+                        new ShutdownCmd(bot),
+                        new LeaveServerCmd(bot),
+                        new ServersCmd(bot)
                 );
         if(bot.getConfig().isSpotifyEnabled())
             cb.addCommand(new SPSearchCmd(bot));
