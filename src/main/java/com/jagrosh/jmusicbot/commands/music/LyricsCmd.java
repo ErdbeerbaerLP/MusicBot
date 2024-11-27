@@ -48,7 +48,7 @@ public class LyricsCmd extends MusicCommand
         this.arguments = "[song name]";
         this.help = "shows the lyrics of a song";
         this.options = Collections.singletonList(
-                new OptionData(OptionType.CHANNEL, "name", "Name of a song")
+                new OptionData(OptionType.STRING, "name", "Name of a song")
                         .setRequired(false)
         );
         this.aliases = bot.getConfig().getAliases(this.name);
