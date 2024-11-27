@@ -122,7 +122,7 @@ public class RemoveCmd extends MusicCommand
         for (final QueuedTrack track : queue) {
             final String name = track.getTrack().getInfo().title;
             if (name.toLowerCase().contains(val.toLowerCase())) {
-                choices.add(new Command.Choice(name, queue.indexOf(track)));
+                choices.add(new Command.Choice(name, queue.indexOf(track)+1));
                 count++;
                 if (count >= 20) break;
             }

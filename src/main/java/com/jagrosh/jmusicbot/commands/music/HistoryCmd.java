@@ -149,8 +149,6 @@ public class HistoryCmd extends MusicCommand
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {
         AudioHandler ah = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
         final HashMap<Long, AudioTrack> history = ah.getTrackHistory().entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));;
-
-
         final ArrayList<Command.Choice> tracks = new ArrayList<>();
         for (Long time : history.keySet()) {
             AudioTrack track = history.get(time);
@@ -158,5 +156,6 @@ public class HistoryCmd extends MusicCommand
             builder.addChoices("[" + TimeUtil.formatTime(track.getDuration()) + "] " + track.getInfo().title);
         }
 
+        event.replyChoices(tracks).queue();
     }
 }
