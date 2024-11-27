@@ -157,7 +157,7 @@ public class Settings implements GuildSettingsProvider
     }
 
     // Setters
-    public void setTextChannel(TextChannel tc)
+    public void setTextChannel(MessageChannel tc)
     {
         this.textId = tc == null ? 0 : tc.getIdLong();
         this.manager.writeSettings();

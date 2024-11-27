@@ -16,12 +16,19 @@
 package com.jagrosh.jmusicbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.AdminCommand;
 import com.jagrosh.jmusicbot.settings.Settings;
+import de.erdbeerbaerlp.jsponsorblock.Category;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author John Grosh <john.a.grosh@gmail.com>
@@ -31,7 +38,61 @@ public class SetsponsorblockCmd extends AdminCommand {
         this.name = "setsponsorblock";
         this.help = "sets sponsorblock settings for this server";
         this.arguments = "<category|category,category|off>";
+        this.options = Collections.singletonList(
+                new OptionData(OptionType.STRING, "categories", "Sponsorblock categories to enable")
+                        .setRequired(true).setAutoComplete(true)
+        );
         this.aliases = bot.getConfig().getAliases(this.name);
+    }
+
+    @Override
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event) {
+        final ArrayList<net.dv8tion.jda.api.interactions.commands.Command.Choice> choices = new ArrayList<>();
+        final String[] split = event.getFocusedOption().getValue().split(",");
+        if(split.length == 1) choices.add(new Command.Choice("off", "off"));
+
+        String prefix = split.length>1?String.join(",", Arrays.copyOfRange(split,0,split.length-1)):"";
+        final String val = event.getFocusedOption().getValue().endsWith(",")?"":split[split.length-1];
+        int count = 0;
+        for (de.erdbeerbaerlp.jsponsorblock.Category cat : de.erdbeerbaerlp.jsponsorblock.Category.values()) {
+            String name = cat.name();
+            for(final String s : split){
+                if(s.equalsIgnoreCase(name)) continue;
+            }
+            if (cat.name().toLowerCase().contains(val.toLowerCase())) {
+                choices.add(new net.dv8tion.jda.api.interactions.commands.Command.Choice(prefix+name, prefix+name));
+                count++;
+                if (count >= 20) break;
+            }
+        }
+        event.replyChoices(choices).queue();
+
+    }
+
+    @Override
+    protected void execute(SlashCommandEvent event) {
+        if (!event.hasOption("category")) {
+            event.reply(event.getClient().getError() + " Please include a category or off\nAvailable categories are: `" + Arrays.toString(de.erdbeerbaerlp.jsponsorblock.Category.values()) + "`").setEphemeral(true).queue();
+            return;
+        }
+        Settings s = event.getClient().getSettingsFor(event.getGuild());
+        if (event.getOption("category").getAsString().equalsIgnoreCase("off")) {
+            s.setCategories(new de.erdbeerbaerlp.jsponsorblock.Category[0]);
+            event.reply(event.getClient().getSuccess() + " Sponsorblock has now been disabled!").setEphemeral(true).queue();
+        } else {
+            final ArrayList<de.erdbeerbaerlp.jsponsorblock.Category> cats = new ArrayList<>();
+            for (String str : event.getOption("category").getAsString().replace(" ", "").toUpperCase().split(",")) {
+                try {
+                    cats.add(de.erdbeerbaerlp.jsponsorblock.Category.valueOf(str));
+                } catch (IllegalArgumentException e) {
+                    event.reply(event.getClient().getError() + " The provided values are invalid!\nAvailable categories are: `" + Arrays.toString(de.erdbeerbaerlp.jsponsorblock.Category.values()) + "`").setEphemeral(true).queue();
+                    return;
+                }
+            }
+            s.setCategories(cats.toArray(new de.erdbeerbaerlp.jsponsorblock.Category[0]));
+            event.reply(event.getClient().getSuccess() + " Sponsorblock has now been enabled!").setEphemeral(true).queue();
+
+        }
     }
 
     @Override

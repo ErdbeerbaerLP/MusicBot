@@ -237,6 +237,14 @@ public class JMusicBot
                         new LeaveServerCmd(bot),
                         new ServersCmd(bot)
                 ).addSlashCommands(
+
+                        new QueueTypeCmd(bot),
+                        new SetdjCmd(bot),
+                        new SkipratioCmd(bot),
+                        new SettcCmd(bot),
+                        new SetvcCmd(bot),
+                        new SetsponsorblockCmd(bot),
+
                         new AutoplaylistCmd(bot),
                         new DebugCmd(bot),
                         new PlaylistCmd(bot),

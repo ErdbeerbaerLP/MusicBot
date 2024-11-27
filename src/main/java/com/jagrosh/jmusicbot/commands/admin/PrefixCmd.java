@@ -37,6 +37,10 @@ public class PrefixCmd extends AdminCommand
 
 
     @Override
+    protected void execute(SlashCommandEvent slashCommandEvent) {
+    }
+
+    @Override
     protected void execute(CommandEvent event) 
     {
         if(event.getArgs().isEmpty())

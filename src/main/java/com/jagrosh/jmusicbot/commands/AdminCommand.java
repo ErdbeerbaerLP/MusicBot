@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.Permission;
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public abstract class AdminCommand extends Command
+public abstract class AdminCommand extends SlashCommand
 {
     public AdminCommand()
     {
