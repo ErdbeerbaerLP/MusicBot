@@ -2,7 +2,7 @@ name: Make Release
 on:
   push:
     branches:
-      - jda5  # Adjust the branch name as needed
+      - slash-commands  # Adjust the branch name as needed
 
 jobs:
   build_jar:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: 'jda5'
+          ref: 'slash-commands'
       
       - name: Set short git commit SHA
         id: vars
@@ -54,7 +54,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: 'jda5'
+          ref: 'slash-commands'
           fetch-depth: '0'
 
       - name: Set short git commit SHA
