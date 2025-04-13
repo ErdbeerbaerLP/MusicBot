@@ -162,23 +162,8 @@ public class PlayCmd extends MusicCommand {
 
         boolean shuffle = event.hasOption("shuffle") && event.getOption("shuffle").getAsBoolean();
         if (event.hasOption("file")) {
-            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            if (handler.getPlayer().getPlayingTrack() != null && handler.getPlayer().isPaused()) {
-                if (DJCommand.checkDJPermission(event)) {
-                    handler.getPlayer().setPaused(false);
-                    event.reply("Resumed **" + handler.getPlayer().getPlayingTrack().getInfo().title + "**.");
-                } else
-                    event.reply("Only DJs can unpause the player!");
-                return;
-            }
-            StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Play Commands:\n");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <song title>` - plays the first result from Youtube");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <URL>` - plays the provided song, playlist, or stream");
-            for (Command cmd : children)
-                builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
-            builder.append("\n`").append("Tip: Append ` ?shuffle` to the command to shuffle playlists before loading");
-            event.reply(builder.toString());
-            return;
+            String args = event.getOption("file").getAsAttachment().getProxy().getUrl();
+            event.reply(loadingEmoji + " Loading... `[" + args + "]`").queue(m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new SlashResultHandler(m, event, false, shuffle)));
         } else if (event.hasOption("query")) {
             try {
                 // Spotify Workaround
@@ -199,11 +184,27 @@ public class PlayCmd extends MusicCommand {
             String args = argsIn.startsWith("<") && argsIn.endsWith(">")
                     ? argsIn.substring(1, argsIn.length() - 1) : argsIn;
 
-            String finalArgs = args;
-            event.reply(loadingEmoji + " Loading... `[" + args + "]`").queue(m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), finalArgs, new SlashResultHandler(m, event, false, shuffle)));
+            event.reply(loadingEmoji + " Loading... `[" + args + "]`").queue(m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new SlashResultHandler(m, event, false, shuffle)));
 
         } else if (event.hasOption("playlist")) {
             new PlaylistCmd(bot).doCommand(event);
+        } else{
+            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            if (handler.getPlayer().getPlayingTrack() != null && handler.getPlayer().isPaused()) {
+                if (DJCommand.checkDJPermission(event)) {
+                    handler.getPlayer().setPaused(false);
+                    event.reply("Resumed **" + handler.getPlayer().getPlayingTrack().getInfo().title + "**.").queue();
+                } else
+                    event.reply("Only DJs can unpause the player!").setEphemeral(true).queue();;
+                return;
+            }
+            StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Play Commands:\n");
+            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <song title>` - plays the first result from Youtube");
+            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <URL>` - plays the provided song, playlist, or stream");
+            for (Command cmd : children)
+                builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
+            builder.append("\n`").append("Tip: Append ` ?shuffle` to the command to shuffle playlists before loading");
+            event.reply(builder.toString()).queue();;
         }
 
 

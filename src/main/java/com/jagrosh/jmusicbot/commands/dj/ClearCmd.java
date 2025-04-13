@@ -32,7 +32,8 @@ public class ClearCmd extends DJCommand
         this.name = "clear";
         this.help = "clears the queue";
         this.aliases = bot.getConfig().getAliases(this.name);
-        this.bePlaying = false;
+        this.bePlaying = true;
+        this.beListening = false;
     }
 
     @Override
