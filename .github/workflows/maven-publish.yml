@@ -40,7 +40,7 @@ jobs:
         run: mv target/*-All.jar JMusicBot-${{ env.COMMIT_SHORT_SHA }}.jar
 
       - name: Upload jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jar
           path: JMusicBot-${{ env.COMMIT_SHORT_SHA }}.jar
@@ -64,7 +64,7 @@ jobs:
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
 
       - name: Download a Build Artifact
-        uses: actions/download-artifact@v4.6.2
+        uses: actions/download-artifact@v4.2.1
         with:
           name: jar
           path: .
