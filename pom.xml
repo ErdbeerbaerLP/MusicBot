@@ -36,6 +36,11 @@
             <name>Lavalink Repository</name>
             <url>https://maven.lavalink.dev/releases</url>
         </repository>
+        <repository>
+            <id>arbjergDev-snapshot</id>
+            <name>Lavalink Snapshot Repository</name>
+            <url>https://maven.lavalink.dev/snapshots</url>
+        </repository>
         <!-- Chew's Maven Repo for JDA-Chewtils -->
         <repository>
             <id>chew-m2-snapshots</id>
@@ -58,12 +63,12 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.1.1</version>
+            <version>5.3.2</version>
         </dependency>
         <dependency>
             <groupId>pw.chew</groupId>
             <artifactId>jda-chewtils</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.1-SNAPSHOT</version>
             <scope>compile</scope>
             <type>pom</type>
         </dependency>
@@ -84,8 +89,9 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.12.0</version>
+            <version>c9e52a450ac8fc47aee537f62ff293642d17cff5-SNAPSHOT</version>
         </dependency>
+
 	<dependency>
 	    <groupId>com.github.jagrosh</groupId>
 	    <artifactId>JLyrics</artifactId>
