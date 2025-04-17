@@ -27,11 +27,6 @@
             </snapshots>
         </repository>
         <repository>
-            <id>m2.duncte123.dev</id>
-            <name>m2-duncte123</name>
-            <url>https://m2.duncte123.dev/releases</url>
-        </repository>
-        <repository>
             <id>arbjergDev</id>
             <name>Lavalink Repository</name>
             <url>https://maven.lavalink.dev/releases</url>
