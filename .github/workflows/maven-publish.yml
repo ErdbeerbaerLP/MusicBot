@@ -2,7 +2,7 @@ name: Make Release
 on:
   push:
     branches:
-      - jda5  # Adjust the branch name as needed
+      - slash-commands  # Adjust the branch name as needed
 
 jobs:
   build_jar:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: 'jda5'
+          ref: 'slash-commands'
       
       - name: Set short git commit SHA
         id: vars
@@ -40,7 +40,7 @@ jobs:
         run: mv target/*-All.jar JMusicBot-${{ env.COMMIT_SHORT_SHA }}.jar
 
       - name: Upload jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jar
           path: JMusicBot-${{ env.COMMIT_SHORT_SHA }}.jar
@@ -54,7 +54,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: 'jda5'
+          ref: 'slash-commands'
           fetch-depth: '0'
 
       - name: Set short git commit SHA
@@ -64,7 +64,7 @@ jobs:
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
 
       - name: Download a Build Artifact
-        uses: actions/download-artifact@v3.0.0
+        uses: actions/download-artifact@v4.2.1
         with:
           name: jar
           path: .
