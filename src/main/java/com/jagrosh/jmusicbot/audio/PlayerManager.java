@@ -18,6 +18,7 @@ package com.jagrosh.jmusicbot.audio;
 import com.dunctebot.sourcemanagers.DuncteBotSources;
 import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.JMusicBot;
 import com.sedmelluq.discord.lavaplayer.container.MediaContainerRegistry;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -31,6 +32,7 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeSourceOptions;
 import dev.lavalink.youtube.clients.*;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -52,8 +54,10 @@ public class PlayerManager extends DefaultAudioPlayerManager {
 
     public void init() {
         TransformativeAudioSourceManager.createTransforms(bot.getConfig().getTransforms()).forEach(t -> registerSourceManager(t));
-
-        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(true, new Web(), new WebEmbedded(), new TvHtml5Embedded(), new Ios(), new Music());
+        YoutubeSourceOptions options = new YoutubeSourceOptions().setAllowSearch(true);
+        if(bot.getConfig().getYtCipherHost() != null)
+            options.setRemoteCipher(bot.getConfig().getYtCipherHost(), bot.getConfig().getYtCipherKey(), "JMusicBot (Fork)");
+        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(options, new Web(), new WebEmbedded(), new TvHtml5Embedded(), new Ios(), new Music());
         yt.setPlaylistPageCount(bot.getConfig().getMaxYTPlaylistPages());
         if (bot.getConfig().isOAUTHEnabled())
             if (!refreshTokenFile.exists()) {

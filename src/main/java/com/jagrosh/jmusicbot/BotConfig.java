@@ -56,6 +56,9 @@ public class BotConfig
     private String sfClientSecret;
     private String sfClientID;
 
+    private String ytCipherHost;
+    private String ytCipherKey;
+
     public BotConfig(Prompt prompt)
     {
         this.prompt = prompt;
@@ -87,6 +90,8 @@ public class BotConfig
             loadingEmoji = config.getString("loading");
             searchingEmoji = config.getString("searching");
             sfClientID = config.getString("spotifyclientid");
+            ytCipherHost = config.hasPath("ytcipherhost")?config.getString("ytcipherhost"):null;
+            ytCipherKey = config.hasPath("ytcipherkey")?config.getString("ytcipherkey"):null;
             sfClientSecret = config.getString("spotifyclientsecret");
             game = OtherUtil.parseGame(config.getString("game"));
             status = OtherUtil.parseStatus(config.getString("status"));
@@ -247,12 +252,20 @@ public class BotConfig
     {
         return "NONE".equalsIgnoreCase(altprefix) ? null : altprefix;
     }
-    
+
     public String getToken()
     {
         return token;
     }
-    
+    public String getYtCipherHost()
+    {
+        return ytCipherHost;
+    }
+
+    public String getYtCipherKey() {
+        return ytCipherKey;
+    }
+
     public double getSkipRatio()
     {
         return skipratio;
