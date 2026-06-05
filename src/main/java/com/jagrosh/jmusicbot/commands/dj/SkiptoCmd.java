@@ -18,13 +18,13 @@ package com.jagrosh.jmusicbot.commands.dj;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
-import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.LegacyDJCommand;
 
 /**
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class SkiptoCmd extends DJCommand 
+public class SkiptoCmd extends LegacyDJCommand
 {
     public SkiptoCmd(Bot bot)
     {

@@ -20,7 +20,7 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
-import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.LegacyDJCommand;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Michaili K.
  */
-public class ForceRemoveCmd extends DJCommand
+public class ForceRemoveCmd extends LegacyDJCommand
 {
     public ForceRemoveCmd(Bot bot)
     {

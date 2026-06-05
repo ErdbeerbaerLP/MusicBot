@@ -58,12 +58,12 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.3.2</version>
+            <version>6.4.1</version>
         </dependency>
         <dependency>
-            <groupId>pw.chew</groupId>
+            <groupId>com.github.chew</groupId>
             <artifactId>jda-chewtils</artifactId>
-            <version>2.1-SNAPSHOT</version>
+            <version>2.2.1</version>
             <scope>compile</scope>
             <type>pom</type>
         </dependency>
@@ -79,12 +79,12 @@
         <dependency>
             <groupId>dev.arbjerg</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>2.2.4</version>
+            <version>2.2.6</version>
         </dependency>
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.16.0</version>
+            <version>1.18.1</version>
         </dependency>
 
 	<dependency>
@@ -143,6 +143,40 @@
             <groupId>com.github.topi314.lavasrc</groupId>
             <artifactId>protocol-jvm</artifactId>
             <version>4.2.0</version>
+        </dependency>
+
+
+
+
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>jdave-api</artifactId>
+            <version>0.1.8</version>
+        </dependency>
+
+        <!-- Compiled natives for libdave for the specified platform -->
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>jdave-native-linux-x86-64</artifactId>
+            <version>0.1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>jdave-native-linux-aarch64</artifactId>
+            <version>0.1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>jdave-native-win-x86-64</artifactId>
+            <version>0.1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>jdave-native-darwin</artifactId>
+            <version>0.1.8</version>
         </dependency>
     </dependencies>
 
@@ -223,6 +257,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>25</maven.compiler.release>
     </properties>
 </project>

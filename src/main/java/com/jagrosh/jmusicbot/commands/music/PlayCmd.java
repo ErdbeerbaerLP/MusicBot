@@ -26,7 +26,7 @@ import com.jagrosh.jmusicbot.audio.AudioHandler;
 import com.jagrosh.jmusicbot.audio.QueuedTrack;
 import com.jagrosh.jmusicbot.audio.RequestMetadata;
 import com.jagrosh.jmusicbot.audio.SponsorblockHandler;
-import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.LegacyDJCommand;
 import com.jagrosh.jmusicbot.commands.MusicCommand;
 import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
 import com.jagrosh.jmusicbot.settings.Settings;
@@ -131,7 +131,7 @@ public class PlayCmd extends MusicCommand {
         if (argsIn.isEmpty() && event.getMessage().getAttachments().isEmpty()) {
             AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             if (handler.getPlayer().getPlayingTrack() != null && handler.getPlayer().isPaused()) {
-                if (DJCommand.checkDJPermission(event)) {
+                if (LegacyDJCommand.checkDJPermission(event)) {
                     handler.getPlayer().setPaused(false);
                     event.replySuccess("Resumed **" + handler.getPlayer().getPlayingTrack().getInfo().title + "**.");
                 } else
@@ -191,7 +191,7 @@ public class PlayCmd extends MusicCommand {
         } else{
             AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             if (handler.getPlayer().getPlayingTrack() != null && handler.getPlayer().isPaused()) {
-                if (DJCommand.checkDJPermission(event)) {
+                if (LegacyDJCommand.checkDJPermission(event)) {
                     handler.getPlayer().setPaused(false);
                     event.reply("Resumed **" + handler.getPlayer().getPlayingTrack().getInfo().title + "**.").queue();
                 } else

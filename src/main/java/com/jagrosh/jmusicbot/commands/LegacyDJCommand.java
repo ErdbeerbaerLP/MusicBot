@@ -26,9 +26,9 @@ import net.dv8tion.jda.api.entities.Role;
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public abstract class DJCommand extends MusicCommand
+public abstract class LegacyDJCommand extends LegacyMusicCommand
 {
-    public DJCommand(Bot bot)
+    public LegacyDJCommand(Bot bot)
     {
         super(bot);
         this.category = new Category("DJ", event -> checkDJPermission(event));

@@ -5,13 +5,13 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
 import com.jagrosh.jmusicbot.audio.QueuedTrack;
-import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.LegacyDJCommand;
 import com.jagrosh.jmusicbot.queue.AbstractQueue;
 
 /**
  * Command that provides users the ability to move a track in the playlist.
  */
-public class MoveTrackCmd extends DJCommand
+public class MoveTrackCmd extends LegacyDJCommand
 {
 
     public MoveTrackCmd(Bot bot)

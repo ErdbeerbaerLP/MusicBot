@@ -60,7 +60,8 @@ public class LeaveServerCmd extends OwnerCommand {
         final ArrayList<Command.Choice> choices = new ArrayList<>();
         int count = 0;
         for (Guild guild : guilds) {
-            final String name = guild.getName();
+            String name = guild.getName();
+            if(name.length() > 90) name = name.substring(0, 70);
             if (name.toLowerCase().contains(val.toLowerCase())) {
                 choices.add(new Command.Choice(name+ " - "+guild.getId(), guild.getId()));
                 count++;

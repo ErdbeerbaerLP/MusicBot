@@ -18,7 +18,7 @@ package com.jagrosh.jmusicbot.commands.dj;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
-import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.LegacyDJCommand;
 import com.jagrosh.jmusicbot.settings.Settings;
 import com.jagrosh.jmusicbot.utils.FormatUtil;
 
@@ -26,7 +26,7 @@ import com.jagrosh.jmusicbot.utils.FormatUtil;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class VolumeCmd extends DJCommand
+public class VolumeCmd extends LegacyDJCommand
 {
     public VolumeCmd(Bot bot)
     {

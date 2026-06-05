@@ -19,7 +19,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.audio.AudioHandler;
-import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.LegacyDJCommand;
 import com.jagrosh.jmusicbot.commands.MusicCommand;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -61,7 +61,7 @@ public class SeekCmd extends MusicCommand
         }
 
 
-        if (!DJCommand.checkDJPermission(event) && playingTrack.getUserData(Long.class) != event.getAuthor().getIdLong())
+        if (!LegacyDJCommand.checkDJPermission(event) && playingTrack.getUserData(Long.class) != event.getAuthor().getIdLong())
         {
             event.replyError("You cannot seek **" + playingTrack.getInfo().title + "** because you didn't add it!");
             return;
@@ -110,7 +110,7 @@ public class SeekCmd extends MusicCommand
         }
 
 
-        if (!DJCommand.checkDJPermission(event) && playingTrack.getUserData(Long.class) != event.getUser().getIdLong())
+        if (!LegacyDJCommand.checkDJPermission(event) && playingTrack.getUserData(Long.class) != event.getUser().getIdLong())
         {
             event.reply("You cannot seek **" + playingTrack.getInfo().title + "** because you didn't add it!").queue();
             return;

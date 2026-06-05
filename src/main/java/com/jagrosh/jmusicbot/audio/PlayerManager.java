@@ -57,7 +57,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
         YoutubeSourceOptions options = new YoutubeSourceOptions().setAllowSearch(true);
         if(bot.getConfig().getYtCipherHost() != null)
             options.setRemoteCipher(bot.getConfig().getYtCipherHost(), bot.getConfig().getYtCipherKey(), "JMusicBot (Fork)");
-        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(options, new Web(), new WebEmbedded(), new TvHtml5Embedded(), new Ios(), new Music());
+        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(options, new Web(), new AndroidMusic(),  new WebEmbedded(), new TvHtml5Simply(), new Ios(), new Music(),new Tv() );
         yt.setPlaylistPageCount(bot.getConfig().getMaxYTPlaylistPages());
         if (bot.getConfig().isOAUTHEnabled())
             if (!refreshTokenFile.exists()) {
